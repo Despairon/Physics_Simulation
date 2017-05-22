@@ -26,7 +26,7 @@ namespace Physics_Simulation
 
         #endregion
     }
-
+    
     public static class Render
     {
         #region private_members
@@ -46,11 +46,33 @@ namespace Physics_Simulation
 
         private static void drawBackground()
         {
-            const int cubeSize = 100;
+            const int cubeSize = 15000;
 
-            setColor(Color.Bisque);
+            setColor(Color.DarkSlateGray);
 
             Glut.glutSolidCube(cubeSize);
+        }
+
+        private static void renderText()
+        {
+            Gl.glMatrixMode(Gl.GL_MODELVIEW);
+            Gl.glPushMatrix();
+            Gl.glLoadIdentity();
+
+            Gl.glMatrixMode(Gl.GL_PROJECTION);
+            Gl.glPushMatrix();
+            Gl.glLoadIdentity();
+            Glu.gluOrtho2D(0, graphics.Width, 0, graphics.Height);
+
+            Gl.glRasterPos2i(0, 0);
+            setColor(Color.Red);
+            Gl.glScaled(0.2, 0.2, 0.2);
+            Gl.glTranslated(0, 2700, 0);
+            Glut.glutStrokeString(Glut.GLUT_STROKE_ROMAN, userConfiguration.message);
+            
+            Gl.glPopMatrix();
+            Gl.glMatrixMode(Gl.GL_MODELVIEW);
+            Gl.glPopMatrix();
         }
 
         private static int i = 0; // FIXME: delete
@@ -63,10 +85,13 @@ namespace Physics_Simulation
 
             drawBackground();
 
-            /* TEST */
             camera.renderCamera();
 
-            Gl.glColor3d(0.1f, 0.7f, 0.1f);
+            renderText();
+
+            /* TEST */
+
+            setColor(Color.DarkSeaGreen);
 
             Gl.glPushMatrix();
 
@@ -83,8 +108,6 @@ namespace Physics_Simulation
 
             //foreach (var obj in physic_objects)
             //    obj.draw();
-
-
 
             Gl.glFlush();
 
@@ -104,7 +127,8 @@ namespace Physics_Simulation
 
             private int    _FPS;
             private Color  _backgroundColor;
-            private string _backgroundCubemapImage; 
+            private string _backgroundCubemapImage;
+            private string _message;
 
             #endregion
 
@@ -121,6 +145,8 @@ namespace Physics_Simulation
                 Gl.glClearColor(r, g, b, 1);
 
                 _backgroundCubemapImage = "Textures/Cubemap_stars.jpg";
+
+                _message = "FPS: " + FPS.ToString();
             }
 
             public Color backgroundColor
@@ -173,6 +199,18 @@ namespace Physics_Simulation
                 }
             }
 
+            public string message
+            {
+                get
+                {
+                    return _message;
+                }
+                set
+                {
+                    _message = value;
+                }
+            }
+
             #endregion
         }
 
@@ -189,7 +227,7 @@ namespace Physics_Simulation
                 Gl.glViewport(0, 0, graphics.Width, graphics.Height);
                 Gl.glMatrixMode(Gl.GL_PROJECTION);
                 Gl.glLoadIdentity();
-                Glu.gluPerspective(45, (float)graphics.Width / (float)graphics.Height, 0.1, 200);
+                Glu.gluPerspective(45, (float)graphics.Width / (float)graphics.Height, 0.1, 20000);
                 Gl.glMatrixMode(Gl.GL_MODELVIEW);
                 Gl.glLoadIdentity();
                 Gl.glEnable(Gl.GL_DEPTH_TEST);

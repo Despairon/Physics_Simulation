@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Tao.OpenGl;
-using Tao.FreeGlut;
-using Tao.Platform.Windows;
-using Tao.DevIl;
+﻿using Tao.OpenGl;
 using System.Windows.Forms;
 
 namespace Physics_Simulation
@@ -21,12 +13,18 @@ namespace Physics_Simulation
 
         private void mouseEvent(MouseEventType mouseEvent, MouseEventArgs mouseArgs)
         {
-
+            // TODO: implement camera rotation behavior
+        }
+        
+        private void keyboardEvent(KeyEventType keyEventType, KeyEventArgs key_args)
+        {
+            // TODO: implement camera moving behavior
         }
 
-        private void attachMouseInput()
+        private void attachInput()
         {
-            Program.getInputManagerFromMainForm().mouseEvent += mouseEvent;
+            Program.getInputManagerFromMainForm().mouseEvent     += mouseEvent;
+            Program.getInputManagerFromMainForm().keyDownUpEvent += keyboardEvent;
         }
 
         #endregion
@@ -39,12 +37,11 @@ namespace Physics_Simulation
             center_position = new Point3D(0,0,0);
             up_position     = new Point3D(0,1,0);
 
-            attachMouseInput();
+            attachInput();
         }
 
         public void renderCamera()
-        {     
-            // TODO: implement camera rotate
+        {               
             Glu.gluLookAt(eye_position.x,    eye_position.y,    eye_position.z,
                           center_position.x, center_position.y, center_position.z,
                           up_position.x,     up_position.y,     up_position.z);
