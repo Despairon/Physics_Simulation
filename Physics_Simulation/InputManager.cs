@@ -23,6 +23,11 @@ namespace Physics_Simulation
     {
         #region private_members
 
+        /***********************default "do nothing" handle section****************************/
+        private static void defaultInputEvent(MouseEventType mouseEvent, MouseEventArgs mouseArgs)  { }
+        private static void defaultInputEvent(KeyEventType mouseEvent, KeyEventArgs mouseArgs)      { }
+        private static void defaultInputEvent(KeyEventType mouseEvent, KeyPressEventArgs mouseArgs) { }
+
         /*******************************mouse handle section***********************************/
         private void mouseClickHandler(object sender, MouseEventArgs mouse_args)
         {
@@ -100,9 +105,9 @@ namespace Physics_Simulation
         public delegate void KeyDownUpEvent(KeyEventType keyEvent, KeyEventArgs keyEventArgs);
         public delegate void KeyPressEvent(KeyEventType keyEvent, KeyPressEventArgs keyEventArgs);
 
-        public MouseEvent     mouseEvent;
-        public KeyDownUpEvent keyDownUpEvent;
-        public KeyPressEvent  keyPressEvent;
+        public MouseEvent     mouseEvent      = new MouseEvent(defaultInputEvent);
+        public KeyDownUpEvent keyDownUpEvent  = new KeyDownUpEvent(defaultInputEvent);
+        public KeyPressEvent  keyPressEvent   = new KeyPressEvent(defaultInputEvent);
 
         #endregion
     }

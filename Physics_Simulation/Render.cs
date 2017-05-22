@@ -44,6 +44,15 @@ namespace Physics_Simulation
             camera       = new Camera();
         }
 
+        private static void drawBackground()
+        {
+            const int cubeSize = 100;
+
+            setColor(Color.Bisque);
+
+            Glut.glutSolidCube(cubeSize);
+        }
+
         private static int i = 0; // FIXME: delete
 
         private static void drawAll(object sender, EventArgs e)
@@ -51,6 +60,8 @@ namespace Physics_Simulation
             Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);
 
             Gl.glLoadIdentity();
+
+            drawBackground();
 
             /* TEST */
             camera.renderCamera();
@@ -91,8 +102,9 @@ namespace Physics_Simulation
         {
             #region private_members
 
-            private int   _FPS;
-            private Color _backgroundColor; 
+            private int    _FPS;
+            private Color  _backgroundColor;
+            private string _backgroundCubemapImage; 
 
             #endregion
 
@@ -107,6 +119,8 @@ namespace Physics_Simulation
                 float g = (float)_backgroundColor.G / 256;
                 float b = (float)_backgroundColor.B / 256;
                 Gl.glClearColor(r, g, b, 1);
+
+                _backgroundCubemapImage = "Textures/Cubemap_stars.jpg";
             }
 
             public Color backgroundColor
@@ -136,6 +150,26 @@ namespace Physics_Simulation
                     const int MILLISEC_IN_SEC = 1000;
                     drawingTimer.Interval = MILLISEC_IN_SEC / value;
                     _FPS = value;
+                }
+            }
+
+            public string backgroundCubemapImage
+            {
+                get
+                {
+                    return _backgroundCubemapImage;
+                }
+                set
+                {
+                    try
+                    {
+                        // TODO: implement background set
+                    }
+                    catch (Exception)
+                    {
+                        // TODO: implement default behavior
+                    }
+                    _backgroundCubemapImage = value;
                 }
             }
 
@@ -172,6 +206,14 @@ namespace Physics_Simulation
             else return false;
 
             return true;
+        }
+
+        public static void setColor(Color color)
+        {
+            float r = (float)color.R / 256;
+            float g = (float)color.G / 256;
+            float b = (float)color.B / 256;
+            Gl.glColor3d(r, g, b);
         }
 
         #endregion

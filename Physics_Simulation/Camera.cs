@@ -21,7 +21,7 @@ namespace Physics_Simulation
 
         private void mouseEvent(MouseEventType mouseEvent, MouseEventArgs mouseArgs)
         {
-            
+
         }
 
         private void attachMouseInput()

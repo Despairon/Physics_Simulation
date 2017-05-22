@@ -19,8 +19,9 @@ namespace Physics_Simulation
             if (Render.init(ref renderWindow))
             {
                 // set render configuration
-                Render.userConfiguration.FPS             = 60;
-                Render.userConfiguration.backgroundColor = Color.Gray;
+                Render.userConfiguration.FPS                    = 60;
+                Render.userConfiguration.backgroundColor        = Color.Gray;
+                Render.userConfiguration.backgroundCubemapImage = "Textures/Cubemap_stars.jpg";
             }
             else
                 MessageBox.Show("already initialized");
