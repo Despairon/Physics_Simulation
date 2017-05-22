@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace Physics_Simulation
@@ -9,12 +10,21 @@ namespace Physics_Simulation
         {
             InitializeComponent();
         }
+        public InputManager inputManager { get; private set; }
 
         private void MainForm_Shown(object sender, EventArgs e)
         {
-            Render.init(ref renderWindow);
+            inputManager = new InputManager(renderWindow as Control);
 
-            Render.userConfiguration.FPS = 60;
+            if (Render.init(ref renderWindow))
+            {
+                // set render configuration
+                Render.userConfiguration.FPS             = 60;
+                Render.userConfiguration.backgroundColor = Color.Gray;
+            }
+            else
+                MessageBox.Show("already initialized");
+            
         }
     }
 }

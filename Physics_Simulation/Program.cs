@@ -16,7 +16,19 @@ namespace Physics_Simulation
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm());
+            mainForm = new MainForm();
+            Application.Run(mainForm);
+        }
+        private static MainForm mainForm;
+
+        public static InputManager getInputManagerFromMainForm()
+        {
+            return mainForm.inputManager;
+        }
+
+        public static InputManager getInputManagerFromCustomForm(MainForm form)
+        {
+            return form.inputManager;
         }
     }
 }

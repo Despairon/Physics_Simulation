@@ -5,6 +5,7 @@ using Tao.Platform.Windows;
 using Tao.DevIl;
 using System;
 using System.Windows.Forms;
+using System.Drawing;
 
 namespace Physics_Simulation
 {
@@ -30,10 +31,18 @@ namespace Physics_Simulation
     {
         #region private_members
 
-        private static SimpleOpenGlControl graphics      = null;
-        private static Timer               drawingTimer  = new Timer();
-        private static bool                initialized   = false;
-        private static Camera              camera        = new Camera();
+        private static SimpleOpenGlControl graphics;
+        private static Timer               drawingTimer;
+        private static bool                initialized;
+        private static Camera              camera;
+
+        private static void initializeComponents()
+        {
+            graphics     = null;
+            drawingTimer = new Timer();
+            initialized  = false;
+            camera       = new Camera();
+        }
 
         private static int i = 0; // FIXME: delete
 
@@ -82,8 +91,9 @@ namespace Physics_Simulation
         {
             #region private_members
 
-            private int _FPS;
- 
+            private int   _FPS;
+            private Color _backgroundColor; 
+
             #endregion
 
             #region public_members
@@ -91,6 +101,28 @@ namespace Physics_Simulation
             public void setDefaultConfiguration()
             {
                 _FPS = 60;
+
+                _backgroundColor = Color.Gray;
+                float r = (float)_backgroundColor.R / 256;
+                float g = (float)_backgroundColor.G / 256;
+                float b = (float)_backgroundColor.B / 256;
+                Gl.glClearColor(r, g, b, 1);
+            }
+
+            public Color backgroundColor
+            {
+                get
+                {
+                    return _backgroundColor;
+                }
+                set
+                {
+                    float r = (float)value.R / 256;
+                    float g = (float)value.G / 256;
+                    float b = (float)value.B / 256;
+                    Gl.glClearColor(r, g, b, 1);
+                    _backgroundColor = value;
+                }
             }
 
             public int FPS
@@ -110,15 +142,16 @@ namespace Physics_Simulation
             #endregion
         }
 
-        public static void init(ref SimpleOpenGlControl canvas)
+        public static bool init(ref SimpleOpenGlControl canvas)
         {
             if (!initialized)
             {
+                initializeComponents();
+
                 graphics = canvas;
                 graphics.InitializeContexts();
                 Glut.glutInit();
                 Glut.glutInitDisplayMode(Glut.GLUT_RGB | Glut.GLUT_DOUBLE | Glut.GLUT_DEPTH);
-                Gl.glClearColor(0.5f, 0.5f, 0.5f, 1);
                 Gl.glViewport(0, 0, graphics.Width, graphics.Height);
                 Gl.glMatrixMode(Gl.GL_PROJECTION);
                 Gl.glLoadIdentity();
@@ -136,6 +169,9 @@ namespace Physics_Simulation
 
                 initialized = true;
             }
+            else return false;
+
+            return true;
         }
 
         #endregion
