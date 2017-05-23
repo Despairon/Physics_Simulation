@@ -6,6 +6,7 @@ using Tao.DevIl;
 using System;
 using System.Windows.Forms;
 using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace Physics_Simulation
 {
@@ -35,22 +36,74 @@ namespace Physics_Simulation
         private static Timer               drawingTimer;
         private static bool                initialized;
         private static Camera              camera;
+        private static ShaderManager       shaderManager;
 
         private static void initializeComponents()
         {
-            graphics     = null;
-            drawingTimer = new Timer();
-            initialized  = false;
-            camera       = new Camera();
+            graphics      = null;
+            drawingTimer  = new Timer();
+            initialized   = false;
+            camera        = new Camera();
+        }
+
+        private static bool initializeShaders()
+        {
+            shaderManager = new ShaderManager();
+            if (shaderManager.error)
+                return false;
+            return true;
+        }
+
+        private static int loadCubemap(List<string> faces)
+        {
+            const int cubeFaces = 6;
+
+            int textureID;
+
+            Gl.glGenTextures(1, out textureID);
+
+            Gl.glActiveTexture(Gl.GL_TEXTURE0);
+
+            int width  = 128;
+            int height = 128;
+
+            Gl.glBindTexture(Gl.GL_TEXTURE_CUBE_MAP, textureID);
+            for (int j = 0; j < cubeFaces; j++)
+            {
+                var bmp = new Bitmap(faces[j]);
+                var bmpData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
+                Gl.glTexImage2D(Gl.GL_TEXTURE_CUBE_MAP_POSITIVE_X + j, 0, Gl.GL_RGB, width, height, 0, Gl.GL_RGB, Gl.GL_UNSIGNED_BYTE, bmpData.Scan0);
+            }
+
+            Gl.glTexParameteri(Gl.GL_TEXTURE_CUBE_MAP, Gl.GL_TEXTURE_MAG_FILTER, Gl.GL_LINEAR);
+            Gl.glTexParameteri(Gl.GL_TEXTURE_CUBE_MAP, Gl.GL_TEXTURE_MIN_FILTER, Gl.GL_LINEAR);
+            Gl.glTexParameteri(Gl.GL_TEXTURE_CUBE_MAP, Gl.GL_TEXTURE_WRAP_S,     Gl.GL_CLAMP_TO_EDGE);
+            Gl.glTexParameteri(Gl.GL_TEXTURE_CUBE_MAP, Gl.GL_TEXTURE_WRAP_T,     Gl.GL_CLAMP_TO_EDGE);
+            Gl.glTexParameteri(Gl.GL_TEXTURE_CUBE_MAP, Gl.GL_TEXTURE_WRAP_R,     Gl.GL_CLAMP_TO_EDGE);
+            Gl.glBindTexture(Gl.GL_TEXTURE_CUBE_MAP, 0);
+
+            return textureID;
+        }
+
+        private static int loadBackground()
+        {
+            List<string> cubemapFaces = new List<string>();
+
+            cubemapFaces.Add("Textures/right.bmp");
+            cubemapFaces.Add("Textures/left.bmp");
+            cubemapFaces.Add("Textures/top.bmp");
+            cubemapFaces.Add("Textures/bottom.bmp");
+            cubemapFaces.Add("Textures/back.bmp");
+            cubemapFaces.Add("Textures/front.bmp");
+
+            return loadCubemap(cubemapFaces);
         }
 
         private static void drawBackground()
         {
-            const int cubeSize = 15000;
+            // TODO: implement cubemap here!!!
 
-            setColor(Color.DarkSlateGray);
-
-            Glut.glutSolidCube(cubeSize);
+            //Gl.glBindTexture(Gl.GL_TEXTURE_CUBE_MAP, cubemapTexture);
         }
 
         private static void renderText()
@@ -75,14 +128,12 @@ namespace Physics_Simulation
             Gl.glPopMatrix();
         }
 
-        private static int i = 0; // FIXME: delete
-
         private static void drawAll(object sender, EventArgs e)
         {
             Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);
 
             Gl.glLoadIdentity();
-
+            
             drawBackground();
 
             camera.renderCamera();
@@ -91,12 +142,16 @@ namespace Physics_Simulation
 
             /* TEST */
 
-            setColor(Color.DarkSeaGreen);
-
             Gl.glPushMatrix();
 
             Gl.glTranslated(0, 0, -2);
-            Gl.glRotated(i++, 0, 1, 0);
+            float angle = ((float)DateTime.Now.Millisecond / (float)1000) * 180;
+            Gl.glRotated(angle, 0, 1, 0);
+            setColor(Color.DarkSeaGreen);
+            Gl.glScaled(0.5, 0.5, 0.5);
+            Glut.glutSolidSphere(1, 50, 50);
+            Gl.glScaled(1.001, 1.001, 1.001);
+            setColor(Color.Black);
             Glut.glutWireSphere(1, 50, 50);
 
             Gl.glPopMatrix();
@@ -222,6 +277,7 @@ namespace Physics_Simulation
 
                 graphics = canvas;
                 graphics.InitializeContexts();
+
                 Glut.glutInit();
                 Glut.glutInitDisplayMode(Glut.GLUT_RGB | Glut.GLUT_DOUBLE | Glut.GLUT_DEPTH);
                 Gl.glViewport(0, 0, graphics.Width, graphics.Height);
@@ -238,6 +294,9 @@ namespace Physics_Simulation
                 drawingTimer.Interval = 1000 / userConfiguration.FPS;
                 drawingTimer.Tick += new EventHandler(drawAll);
                 drawingTimer.Start();
+
+                if (!initializeShaders())
+                    throw new Exception();
 
                 initialized = true;
             }

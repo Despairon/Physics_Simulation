@@ -67,6 +67,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Render.cs" />
+    <Compile Include="ShaderManager.cs" />
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -88,12 +89,19 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="Shaders\Cubemap\fragment.glsl" />
+    <None Include="Shaders\Cubemap\vertex.glsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Textures\Cubemap_stars.jpg" />
+    <Content Include="Textures\back.bmp" />
+    <Content Include="Textures\bottom.bmp" />
+    <Content Include="Textures\front.bmp" />
+    <Content Include="Textures\left.bmp" />
+    <Content Include="Textures\right.bmp" />
+    <Content Include="Textures\top.bmp" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
