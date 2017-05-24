@@ -89,12 +89,14 @@ namespace Physics_Simulation
         {
             List<string> cubemapFaces = new List<string>();
 
-            cubemapFaces.Add("Textures/right.bmp");
-            cubemapFaces.Add("Textures/left.bmp");
-            cubemapFaces.Add("Textures/top.bmp");
-            cubemapFaces.Add("Textures/bottom.bmp");
-            cubemapFaces.Add("Textures/back.bmp");
-            cubemapFaces.Add("Textures/front.bmp");
+            string textures_directory = userConfiguration.backgroundCubemapImage + "/";
+
+            cubemapFaces.Add(textures_directory + "right.bmp");
+            cubemapFaces.Add(textures_directory + "left.bmp");
+            cubemapFaces.Add(textures_directory + "top.bmp");
+            cubemapFaces.Add(textures_directory + "bottom.bmp");
+            cubemapFaces.Add(textures_directory + "back.bmp");
+            cubemapFaces.Add(textures_directory + "front.bmp");
 
             return loadCubemap(cubemapFaces);
         }
@@ -140,7 +142,7 @@ namespace Physics_Simulation
 
             renderText();
 
-            /* TEST */
+            /* FIXME: debug, delete */
 
             Gl.glPushMatrix();
 
@@ -148,7 +150,7 @@ namespace Physics_Simulation
             float angle = ((float)DateTime.Now.Millisecond / (float)1000) * 180;
             Gl.glRotated(angle, 0, 1, 0);
             setColor(Color.DarkSeaGreen);
-            Gl.glScaled(0.5, 0.5, 0.5);
+            Gl.glScaled(0.6, 0.6, 0.6);
             Glut.glutSolidSphere(1, 50, 50);
             Gl.glScaled(1.001, 1.001, 1.001);
             setColor(Color.Black);
@@ -191,7 +193,7 @@ namespace Physics_Simulation
 
             public void setDefaultConfiguration()
             {
-                _FPS = 60;
+                _FPS = 100;
 
                 _backgroundColor = Color.Gray;
                 float r = (float)_backgroundColor.R / 256;
@@ -199,7 +201,7 @@ namespace Physics_Simulation
                 float b = (float)_backgroundColor.B / 256;
                 Gl.glClearColor(r, g, b, 1);
 
-                _backgroundCubemapImage = "Textures/Cubemap_stars.jpg";
+                _backgroundCubemapImage = "Textures/Cubemap";
 
                 _message = "FPS: " + FPS.ToString();
             }

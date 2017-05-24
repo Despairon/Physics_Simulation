@@ -96,13 +96,14 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Textures\back.bmp" />
-    <Content Include="Textures\bottom.bmp" />
-    <Content Include="Textures\front.bmp" />
-    <Content Include="Textures\left.bmp" />
-    <Content Include="Textures\right.bmp" />
-    <Content Include="Textures\top.bmp" />
+    <Content Include="Textures\Cubemap\back.bmp" />
+    <Content Include="Textures\Cubemap\bottom.bmp" />
+    <Content Include="Textures\Cubemap\front.bmp" />
+    <Content Include="Textures\Cubemap\left.bmp" />
+    <Content Include="Textures\Cubemap\right.bmp" />
+    <Content Include="Textures\Cubemap\top.bmp" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

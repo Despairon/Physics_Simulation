@@ -29,14 +29,14 @@ namespace Physics_Simulation
                 shader.id   = Gl.glCreateShader(Gl.GL_VERTEX_SHADER);
                 shader.name = shader_file;
                 while (!sr.EndOfStream)
-                    shader.source.Add(sr.ReadLine());
+                    shader.source.Add(sr.ReadLine() + "\n");
             }
             else if (shader_file.Contains("fragment") || shader_file.Contains("Fragment"))
             {
                 shader.id   = Gl.glCreateShader(Gl.GL_FRAGMENT_SHADER);
                 shader.name = shader_file;
                 while (!sr.EndOfStream)
-                    shader.source.Add(sr.ReadLine());
+                    shader.source.Add(sr.ReadLine() + "\n");
             }
 
             return shader;
@@ -47,6 +47,21 @@ namespace Physics_Simulation
             int length = shader.source.Count;
             Gl.glShaderSource(shader.id, 1, shader.source.ToArray(), ref length);
             Gl.glCompileShader(shader.id);
+
+            /* FIXME: debug, delete*/
+            int isCompiled;
+            Gl.glGetShaderiv(shader.id,Gl.GL_COMPILE_STATUS, out isCompiled);
+            if (isCompiled == 0)
+            {
+                int len;
+                StringBuilder log = new StringBuilder(256);
+                Gl.glGetShaderInfoLog(shader.id, 256, out len, log);
+                string source = "";
+                foreach (var line in shader.source.ToArray())
+                    source += line;
+                MessageBox.Show("Shader " + shader.name + " has not been successfully compiled. Code: \n"+ source + "\n error log: \n" + log.ToString());
+            }
+            /******/
         }
 
         private ShaderProgram create_shader_program(string program_directory)
@@ -73,7 +88,6 @@ namespace Physics_Simulation
 
             Gl.glLinkProgram(shaderProgram.id);
             
-            /* TEST
             int link_ok;
             Gl.glGetProgramiv(shaderProgram.id, Gl.GL_LINK_STATUS, out link_ok);
 
@@ -84,9 +98,9 @@ namespace Physics_Simulation
                 Gl.glGetProgramiv(shaderProgram.id, Gl.GL_INFO_LOG_LENGTH, out maxLength);
                 StringBuilder log = new StringBuilder(256);
                 Gl.glGetProgramInfoLog(shaderProgram.id, maxLength, out length, log);
-                MessageBox.Show(log.ToString());
+                MessageBox.Show("Shader build error: " + log.ToString(), "error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 error = true;
-            }*/
+            }
 
             return shaderProgram;
         }
