@@ -44,11 +44,9 @@ namespace Physics_Simulation
 
         private void initialize_shader(Shader shader)
         {
-            int length = shader.source.Count;
-            Gl.glShaderSource(shader.id, 1, shader.source.ToArray(), ref length);
+            Gl.glShaderSource(shader.id, shader.source.Count, shader.source.ToArray(), null);
             Gl.glCompileShader(shader.id);
 
-            /* FIXME: debug, delete*/
             int isCompiled;
             Gl.glGetShaderiv(shader.id,Gl.GL_COMPILE_STATUS, out isCompiled);
             if (isCompiled == 0)
@@ -61,7 +59,6 @@ namespace Physics_Simulation
                     source += line;
                 MessageBox.Show("Shader " + shader.name + " has not been successfully compiled. Code: \n"+ source + "\n error log: \n" + log.ToString());
             }
-            /******/
         }
 
         private ShaderProgram create_shader_program(string program_directory)

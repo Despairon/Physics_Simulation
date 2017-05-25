@@ -6,10 +6,20 @@ using Tao.DevIl;
 using System;
 using System.Windows.Forms;
 using System.Drawing;
-using System.Drawing.Imaging;
 
 namespace Physics_Simulation
 {
+    public enum DIRECTION
+    {
+        NONE,
+        UP,
+        DOWN,
+        LEFT,
+        RIGHT,
+        FORWARD,
+        BACKWARD
+    }
+
     public struct Point3D
     {
         #region public members
@@ -37,6 +47,7 @@ namespace Physics_Simulation
         private static bool                initialized;
         private static Camera              camera;
         private static ShaderManager       shaderManager;
+        private static Cubemap             cubemap;
 
         private static void initializeComponents()
         {
@@ -54,58 +65,157 @@ namespace Physics_Simulation
             return true;
         }
 
-        private static int loadCubemap(List<string> faces)
+        public static void setColor(Color color)
         {
-            const int cubeFaces = 6;
+            float r = (float)color.R / 256;
+            float g = (float)color.G / 256;
+            float b = (float)color.B / 256;
+            Gl.glColor3d(r, g, b);
+        }
 
-            int textureID;
-
-            Gl.glGenTextures(1, out textureID);
-
-            Gl.glActiveTexture(Gl.GL_TEXTURE0);
-
-            int width  = 128;
-            int height = 128;
-
-            Gl.glBindTexture(Gl.GL_TEXTURE_CUBE_MAP, textureID);
-            for (int j = 0; j < cubeFaces; j++)
+        private struct Cubemap
+        {
+            public Cubemap (int right, int left, int top, int bottom, int back, int front)
             {
-                var bmp = new Bitmap(faces[j]);
-                var bmpData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
-                Gl.glTexImage2D(Gl.GL_TEXTURE_CUBE_MAP_POSITIVE_X + j, 0, Gl.GL_RGB, width, height, 0, Gl.GL_RGB, Gl.GL_UNSIGNED_BYTE, bmpData.Scan0);
+                this.right  = loadCubemapFace("right");
+                this.left   = loadCubemapFace("left");
+                this.top    = loadCubemapFace("top");
+                this.bottom = loadCubemapFace("bottom");
+                this.back   = loadCubemapFace("back");
+                this.front  = loadCubemapFace("front");
+            }
+            public int right;
+            public int left;
+            public int top;
+            public int bottom;
+            public int back;
+            public int front;
+        }
+
+        private static int loadCubemapFace(string cubemap_face_name)
+        {
+            string textures_directory  = userConfiguration.backgroundCubemapImage + "/";
+
+            string cubemap_face = (textures_directory + cubemap_face_name + ".bmp");
+
+            return loadTexture(cubemap_face);
+        }
+
+        private static void drawCubemapFace(int cubemap_face, DIRECTION direction)
+        {
+            Gl.glEnable(Gl.GL_TEXTURE_2D);
+
+            Gl.glBindTexture(Gl.GL_TEXTURE_2D, cubemap_face);
+
+            Gl.glPushMatrix();
+
+            Gl.glScaled(1000,1000,1000);
+          
+            switch (direction)
+            {
+                case DIRECTION.RIGHT:
+                    Gl.glRotated(90, 0, 1, 0);
+                    break;
+                case DIRECTION.LEFT:
+                    Gl.glRotated(-90, 0, 1, 0);
+                    break;
+                case DIRECTION.UP:
+                    Gl.glRotated(90, 1, 0, 0);
+                    break;
+                case DIRECTION.DOWN:
+                    Gl.glRotated(-90, 1, 0, 0);
+                    break;
+                case DIRECTION.FORWARD:
+                    Gl.glTranslated(0, 0, -2);
+                    break;
+                case DIRECTION.BACKWARD:
+                    break;
+                default : break;
             }
 
-            Gl.glTexParameteri(Gl.GL_TEXTURE_CUBE_MAP, Gl.GL_TEXTURE_MAG_FILTER, Gl.GL_LINEAR);
-            Gl.glTexParameteri(Gl.GL_TEXTURE_CUBE_MAP, Gl.GL_TEXTURE_MIN_FILTER, Gl.GL_LINEAR);
-            Gl.glTexParameteri(Gl.GL_TEXTURE_CUBE_MAP, Gl.GL_TEXTURE_WRAP_S,     Gl.GL_CLAMP_TO_EDGE);
-            Gl.glTexParameteri(Gl.GL_TEXTURE_CUBE_MAP, Gl.GL_TEXTURE_WRAP_T,     Gl.GL_CLAMP_TO_EDGE);
-            Gl.glTexParameteri(Gl.GL_TEXTURE_CUBE_MAP, Gl.GL_TEXTURE_WRAP_R,     Gl.GL_CLAMP_TO_EDGE);
-            Gl.glBindTexture(Gl.GL_TEXTURE_CUBE_MAP, 0);
+            Gl.glBegin(Gl.GL_QUADS);
 
-            return textureID;
+            Gl.glTexCoord2f(0.0f, 0.0f); Gl.glVertex3f(-1.0f, -1.0f, 1.0f);
+            Gl.glTexCoord2f(1.0f, 0.0f); Gl.glVertex3f( 1.0f, -1.0f, 1.0f);
+            Gl.glTexCoord2f(1.0f, 1.0f); Gl.glVertex3f( 1.0f,  1.0f, 1.0f);
+            Gl.glTexCoord2f(0.0f, 1.0f); Gl.glVertex3f(-1.0f,  1.0f, 1.0f);
+
+            Gl.glEnd();
+
+            Gl.glPopMatrix();
+
+            Gl.glDisable(Gl.GL_TEXTURE_2D);
         }
 
-        private static int loadBackground()
+        private static void drawCubemap()
         {
-            List<string> cubemapFaces = new List<string>();
-
-            string textures_directory = userConfiguration.backgroundCubemapImage + "/";
-
-            cubemapFaces.Add(textures_directory + "right.bmp");
-            cubemapFaces.Add(textures_directory + "left.bmp");
-            cubemapFaces.Add(textures_directory + "top.bmp");
-            cubemapFaces.Add(textures_directory + "bottom.bmp");
-            cubemapFaces.Add(textures_directory + "back.bmp");
-            cubemapFaces.Add(textures_directory + "front.bmp");
-
-            return loadCubemap(cubemapFaces);
+            if (cubemap.right  != -1 && cubemap.left != -1 && cubemap.top   != -1 &&
+                cubemap.bottom != -1 && cubemap.back != -1 && cubemap.front != -1)
+            {
+                drawCubemapFace(cubemap.right,  DIRECTION.RIGHT);
+                drawCubemapFace(cubemap.left,   DIRECTION.LEFT);
+                drawCubemapFace(cubemap.top,    DIRECTION.UP);
+                drawCubemapFace(cubemap.bottom, DIRECTION.DOWN);
+                drawCubemapFace(cubemap.back,   DIRECTION.BACKWARD);
+                drawCubemapFace(cubemap.front,  DIRECTION.FORWARD);
+            }
         }
 
-        private static void drawBackground()
+        private static int makeTexture(int format, IntPtr data, int width, int height)
         {
-            // TODO: implement cubemap here!!!
+            int texture_ID;
 
-            //Gl.glBindTexture(Gl.GL_TEXTURE_CUBE_MAP, cubemapTexture);
+            Gl.glGenTextures(1, out texture_ID);
+
+            Gl.glPixelStorei(Gl.GL_UNPACK_ALIGNMENT, 1);
+
+            Gl.glBindTexture(Gl.GL_TEXTURE_2D, texture_ID);
+            
+            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_S, Gl.GL_REPEAT);
+            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_T, Gl.GL_REPEAT);
+            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MAG_FILTER, Gl.GL_LINEAR);
+            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MIN_FILTER, Gl.GL_LINEAR);
+            Gl.glTexEnvf(Gl.GL_TEXTURE_ENV, Gl.GL_TEXTURE_ENV_MODE, Gl.GL_REPLACE);
+
+            Gl.glTexImage2D(Gl.GL_TEXTURE_2D, 0, format, width, height, 0, format, Gl.GL_UNSIGNED_BYTE, data);
+
+            return texture_ID;
+        }
+
+        private static int loadTexture(string filepath)
+        {
+            int texture_ID;
+            int image_ID;
+
+            image_ID = Il.ilGenImage();
+
+            Il.ilBindImage(image_ID);
+
+            if (Il.ilLoadImage(filepath))
+            {
+                int width = Il.ilGetInteger(Il.IL_IMAGE_WIDTH);
+                int height = Il.ilGetInteger(Il.IL_IMAGE_HEIGHT);
+
+                int bitsPerPixel = Il.ilGetInteger(Il.IL_IMAGE_BITS_PER_PIXEL);
+
+                switch (bitsPerPixel)
+                {
+                    case 24:
+                        texture_ID = makeTexture(Gl.GL_RGB, Il.ilGetData(), width, height);
+                        break;
+                    case 32:
+                        texture_ID = makeTexture(Gl.GL_RGBA, Il.ilGetData(), width, height);
+                        break;
+                    default:
+                        texture_ID = -1;
+                        break;
+                }
+
+                Il.ilDeleteImage(image_ID);
+
+                return texture_ID;
+            }
+            else return -1;
         }
 
         private static void renderText()
@@ -135,17 +245,18 @@ namespace Physics_Simulation
             Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);
 
             Gl.glLoadIdentity();
-            
-            drawBackground();
 
             camera.renderCamera();
 
+            drawCubemap();
+
             renderText();
 
-            /* FIXME: debug, delete */
+            /* TODO: debug, delete */
 
             Gl.glPushMatrix();
 
+            Gl.glEnable(Gl.GL_LIGHT0);
             Gl.glTranslated(0, 0, -2);
             float angle = ((float)DateTime.Now.Millisecond / (float)1000) * 180;
             Gl.glRotated(angle, 0, 1, 0);
@@ -153,6 +264,7 @@ namespace Physics_Simulation
             Gl.glScaled(0.6, 0.6, 0.6);
             Glut.glutSolidSphere(1, 50, 50);
             Gl.glScaled(1.001, 1.001, 1.001);
+            Gl.glDisable(Gl.GL_LIGHT0);
             setColor(Color.Black);
             Glut.glutWireSphere(1, 50, 50);
 
@@ -246,11 +358,11 @@ namespace Physics_Simulation
                 {
                     try
                     {
-                        // TODO: implement background set
+                        cubemap = new Cubemap(-1, -1, -1, -1, -1, -1);
                     }
                     catch (Exception)
                     {
-                        // TODO: implement default behavior
+                        
                     }
                     _backgroundCubemapImage = value;
                 }
@@ -282,6 +394,8 @@ namespace Physics_Simulation
 
                 Glut.glutInit();
                 Glut.glutInitDisplayMode(Glut.GLUT_RGB | Glut.GLUT_DOUBLE | Glut.GLUT_DEPTH);
+                Il.ilInit();
+                Il.ilEnable(Il.IL_ORIGIN_SET);
                 Gl.glViewport(0, 0, graphics.Width, graphics.Height);
                 Gl.glMatrixMode(Gl.GL_PROJECTION);
                 Gl.glLoadIdentity();
@@ -289,6 +403,7 @@ namespace Physics_Simulation
                 Gl.glMatrixMode(Gl.GL_MODELVIEW);
                 Gl.glLoadIdentity();
                 Gl.glEnable(Gl.GL_DEPTH_TEST);
+                Gl.glEnable(Gl.GL_LIGHTING);
                 Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);
 
                 userConfiguration.setDefaultConfiguration();
@@ -305,14 +420,6 @@ namespace Physics_Simulation
             else return false;
 
             return true;
-        }
-
-        public static void setColor(Color color)
-        {
-            float r = (float)color.R / 256;
-            float g = (float)color.G / 256;
-            float b = (float)color.B / 256;
-            Gl.glColor3d(r, g, b);
         }
 
         #endregion
