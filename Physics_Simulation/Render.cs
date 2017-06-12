@@ -114,31 +114,40 @@ namespace Physics_Simulation
             switch (direction)
             {
                 case DIRECTION.RIGHT:
+                    Gl.glTranslated(1,0,0);
+                    Gl.glRotated(180, 0, 1, 0);
                     Gl.glRotated(90, 0, 1, 0);
                     break;
                 case DIRECTION.LEFT:
+                    Gl.glTranslated(-1, 0, 0);
+                    Gl.glRotated(180, 0, 1, 0);
                     Gl.glRotated(-90, 0, 1, 0);
                     break;
                 case DIRECTION.UP:
+                    Gl.glTranslated(0, 1, 0);
                     Gl.glRotated(90, 1, 0, 0);
                     break;
                 case DIRECTION.DOWN:
-                    Gl.glRotated(-90, 1, 0, 0);
+                    Gl.glTranslated(0, -1, 0);
+                    Gl.glRotated(90, 1, 0, 0);
+                    Gl.glRotated(180, 1,0, 0);
                     break;
                 case DIRECTION.FORWARD:
-                    Gl.glTranslated(0, 0, -2);
+                    Gl.glTranslated(0, 0, -1);
                     break;
                 case DIRECTION.BACKWARD:
+                    Gl.glTranslated(0, 0, 1);
+                    Gl.glRotated(180, 0, 1, 0);
                     break;
                 default : break;
             }
 
             Gl.glBegin(Gl.GL_QUADS);
 
-            Gl.glTexCoord2f(0.0f, 0.0f); Gl.glVertex3f(-1.0f, -1.0f, 1.0f);
-            Gl.glTexCoord2f(1.0f, 0.0f); Gl.glVertex3f( 1.0f, -1.0f, 1.0f);
-            Gl.glTexCoord2f(1.0f, 1.0f); Gl.glVertex3f( 1.0f,  1.0f, 1.0f);
-            Gl.glTexCoord2f(0.0f, 1.0f); Gl.glVertex3f(-1.0f,  1.0f, 1.0f);
+            Gl.glTexCoord2f(0.0f, 0.0f); Gl.glVertex3f(-1.0f, -1.0f, 0.0f);
+            Gl.glTexCoord2f(1.0f, 0.0f); Gl.glVertex3f( 1.0f, -1.0f, 0.0f);
+            Gl.glTexCoord2f(1.0f, 1.0f); Gl.glVertex3f( 1.0f,  1.0f, 0.0f);
+            Gl.glTexCoord2f(0.0f, 1.0f); Gl.glVertex3f(-1.0f,  1.0f, 0.0f);
 
             Gl.glEnd();
 
@@ -197,7 +206,7 @@ namespace Physics_Simulation
                 int height = Il.ilGetInteger(Il.IL_IMAGE_HEIGHT);
 
                 int bitsPerPixel = Il.ilGetInteger(Il.IL_IMAGE_BITS_PER_PIXEL);
-
+                
                 switch (bitsPerPixel)
                 {
                     case 24:
@@ -267,7 +276,7 @@ namespace Physics_Simulation
                 int color_buffer;
                 int index_buffer;
 
-                float color_r = 0.1f;//(float)Math.Sin((double)DateTime.Now.Millisecond)   * 0.367f;
+                float color_r = 0.1f;//(float)Math.Sin((double)DateTime.Now.Millisecond)   * 0.367f; // TODO: uncomment when shaders are working
                 float color_g = 0.2f;//((float)Math.Sin((double)DateTime.Now.Millisecond)) * 0.760f;
                 float color_b = 0.3f;//((float)Math.Sin((double)DateTime.Now.Millisecond)) * 1.500f;
 
