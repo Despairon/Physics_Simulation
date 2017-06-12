@@ -22,27 +22,24 @@ namespace Physics_Simulation
             switch (mouseEvent)
             {
                 case MouseEventType.ENTER:
-                    ///Cursor.Hide();
+                    Cursor.Hide();
                     Cursor.Clip = cameraWindow;
                     break;
                 case MouseEventType.LEAVE:
-                    ///Cursor.Show();
+                    Cursor.Show();
                     break;
                 case MouseEventType.MOVE:
-                    mouseReverse(cursorPos, borders);       
-                        
-                    double theta = mapCursorCoordsToAngle(cursorPos.X, borders.Right,  Math.PI * 2);
-                    double phi   = mapCursorCoordsToAngle(cursorPos.Y, borders.Bottom, Math.PI * 2);
+                    mouseReverse(cursorPos, borders);
 
-                    double x = eye_position.x + Math.Sin(theta) * Math.Cos(phi);
-                    double y = eye_position.y + Math.Sin(theta) * Math.Sin(phi);
-                    double z = eye_position.z + Math.Cos(theta);
+                    double alpha = mapCursorCoordsToAngle(cursorPos.X, borders.Right, Math.PI * 2);
+                    double beta = mapCursorCoordsToAngle(cursorPos.Y, borders.Bottom, Math.PI);
 
-                    Render.userConfiguration.message = "x: " + x.ToString() + " y: " + y.ToString() + " z: " + z.ToString(); // TODO: debug remove
+                    double x = eye_position.x + Math.Cos(alpha);
+                    double y = eye_position.y + Math.Cos(beta);
+                    double z = eye_position.z + Math.Sin(alpha);
 
-                    center_position = new Point3D(x,y,z);     
-                    
-                    // TODO: update up_position               
+                    center_position = new Point3D(x, y, z);
+             
                     break;
                 default : break;
             }
@@ -79,11 +76,6 @@ namespace Physics_Simulation
                 Cursor.Position = new Point(cameraWindow.Left + borders.Left, Cursor.Position.Y);
             else if (cursorPos.X == borders.Left)
                 Cursor.Position = new Point(cameraWindow.Left + borders.Right, Cursor.Position.Y);
-
-            //if (cursorPos.Y == borders.Top)
-            //    Cursor.Position = new Point(Cursor.Position.X, cameraWindow.Top + borders.Bottom);
-            //else if (cursorPos.Y == borders.Bottom)
-            //    Cursor.Position = new Point(Cursor.Position.X, cameraWindow.Top + borders.Top);
         }
 
         private double mapCursorCoordsToAngle(int coord, int coord_max, double maxAngle)
