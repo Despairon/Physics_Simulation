@@ -16,6 +16,8 @@ namespace Physics_Simulation
     {
         #region private_members
 
+        private List<ShaderProgram> shaders;
+
         private Shader create_shader(string shader_file)
         {
             FileStream fs = new FileStream(shader_file, FileMode.Open);
@@ -119,8 +121,6 @@ namespace Physics_Simulation
                 error = true;
         }
 
-        public List<ShaderProgram> shaders { get; private set; }
-
         public struct Shader
         {
             public Shader(int id, string name, List<string> source)
@@ -142,6 +142,11 @@ namespace Physics_Simulation
         }
 
         public bool error { get; private set; } = false;
+
+        public ShaderProgram getShader(string shaderName)
+        {
+            return shaders.Find(shader => shader.name == shaderName);
+        }
 
         #endregion
     }

@@ -45,7 +45,7 @@
             this.renderWindow.Location = new System.Drawing.Point(0, 0);
             this.renderWindow.Margin = new System.Windows.Forms.Padding(0);
             this.renderWindow.Name = "renderWindow";
-            this.renderWindow.Size = new System.Drawing.Size(784, 562);
+            this.renderWindow.Size = new System.Drawing.Size(1008, 730);
             this.renderWindow.StencilBits = ((byte)(0));
             this.renderWindow.TabIndex = 0;
             // 
@@ -53,7 +53,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(784, 562);
+            this.ClientSize = new System.Drawing.Size(1008, 730);
             this.Controls.Add(this.renderWindow);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Name = "MainForm";

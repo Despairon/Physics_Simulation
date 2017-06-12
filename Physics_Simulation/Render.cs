@@ -6,6 +6,7 @@ using Tao.DevIl;
 using System;
 using System.Windows.Forms;
 using System.Drawing;
+using System.Diagnostics;
 
 namespace Physics_Simulation
 {
@@ -54,7 +55,6 @@ namespace Physics_Simulation
             graphics      = null;
             drawingTimer  = new Timer();
             initialized   = false;
-            camera        = new Camera();
         }
 
         private static bool initializeShaders()
@@ -232,7 +232,7 @@ namespace Physics_Simulation
             Gl.glRasterPos2i(0, 0);
             setColor(Color.Red);
             Gl.glScaled(0.2, 0.2, 0.2);
-            Gl.glTranslated(0, 2700, 0);
+            Gl.glTranslated(0, 3500, 0);
             Glut.glutStrokeString(Glut.GLUT_STROKE_ROMAN, userConfiguration.message);
             
             Gl.glPopMatrix();
@@ -252,25 +252,102 @@ namespace Physics_Simulation
 
             renderText();
 
-            /* TODO: debug, delete */
+            /*****************************TODO: debug, delete*************************************/
 
-            Gl.glPushMatrix();
+            var shader = shaderManager.getShader("Cubemap");
+            if (shader.id != -1)
+            {
+                Gl.glUseProgram(shader.id);
 
-            Gl.glEnable(Gl.GL_LIGHT0);
-            Gl.glTranslated(0, 0, -2);
-            float angle = ((float)DateTime.Now.Millisecond / (float)1000) * 180;
-            Gl.glRotated(angle, 0, 1, 0);
-            setColor(Color.DarkSeaGreen);
-            Gl.glScaled(0.6, 0.6, 0.6);
-            Glut.glutSolidSphere(1, 50, 50);
-            Gl.glScaled(1.001, 1.001, 1.001);
-            Gl.glDisable(Gl.GL_LIGHT0);
-            setColor(Color.Black);
-            Glut.glutWireSphere(1, 50, 50);
+                int coords_attribute = Gl.glGetAttribLocation(shader.id, "coords");
+                int color_attribute  = Gl.glGetAttribLocation(shader.id, "color_seed_in");
+                int matrix_uniform   = Gl.glGetUniformLocation(shader.id,  "view");
 
-            Gl.glPopMatrix();
+                int coords_buffer;
+                int color_buffer;
+                int index_buffer;
 
-            /* END TEST*/
+                float color_r = 0.1f;//(float)Math.Sin((double)DateTime.Now.Millisecond)   * 0.367f;
+                float color_g = 0.2f;//((float)Math.Sin((double)DateTime.Now.Millisecond)) * 0.760f;
+                float color_b = 0.3f;//((float)Math.Sin((double)DateTime.Now.Millisecond)) * 1.500f;
+
+                float[,] vertices = new float[,]
+                {
+                    { -1.0f, -1.0f, -1.0f },
+                    {  1.0f, -1.0f, -1.0f },
+                    {  1.0f,  1.0f, -1.0f },
+                    { -1.0f,  1.0f, -1.0f }
+                };
+
+                float[,] colors = new float[,]
+                {
+                    { color_r, color_g, color_b },
+                    { color_g, color_b, color_r },
+                    { color_b, color_g, color_r },
+                    { color_b, color_g, color_r }
+                };
+
+                int[] indices = new int[]
+                {
+                    0, 1, 3,
+                    2, 3, 1
+                };
+
+                Gl.glGenBuffers(1, out coords_buffer);
+                Gl.glBindBuffer(Gl.GL_ARRAY_BUFFER, coords_buffer);
+                Gl.glBufferData(Gl.GL_ARRAY_BUFFER, new IntPtr(vertices.Length), vertices,Gl.GL_STATIC_DRAW);
+
+                Gl.glGenBuffers(1, out color_buffer);
+                Gl.glBindBuffer(Gl.GL_ARRAY_BUFFER, color_buffer);
+                Gl.glBufferData(Gl.GL_ARRAY_BUFFER, new IntPtr(vertices.Length * sizeof(float) * 3), colors, Gl.GL_STATIC_DRAW);
+
+                Gl.glGenBuffers(1, out index_buffer);
+                Gl.glBindBuffer(Gl.GL_ELEMENT_ARRAY_BUFFER, index_buffer);
+                Gl.glBufferData(Gl.GL_ELEMENT_ARRAY_BUFFER, new IntPtr(indices.Length * sizeof(int)), indices , Gl.GL_STATIC_DRAW);
+                
+                /*Gl.glPushMatrix();
+
+                float angle = (float)Stopwatch.GetTimestamp() / 100000.0f;
+                Gl.glTranslated(0, 0, -3);
+                Gl.glRotated(angle, 0, 1, 0);
+                
+                float[] view_matrix = new float[16];
+                Gl.glGetFloatv(Gl.GL_MODELVIEW_MATRIX,view_matrix);
+                Gl.glUniformMatrix4fv(matrix_uniform,1,Gl.GL_FALSE,view_matrix);
+
+                Gl.glPopMatrix();*/
+
+                Gl.glBindBuffer(Gl.GL_ELEMENT_ARRAY_BUFFER, index_buffer);
+                
+                Gl.glEnableVertexAttribArray(coords_attribute);
+                Gl.glBindBuffer(Gl.GL_ARRAY_BUFFER, coords_buffer);
+                Gl.glVertexAttribPointer(coords_attribute, 3, Gl.GL_FLOAT, Gl.GL_FALSE, 0, IntPtr.Zero);
+
+                Gl.glEnableVertexAttribArray(color_attribute);
+                Gl.glBindBuffer(Gl.GL_ARRAY_BUFFER, color_buffer);
+                Gl.glVertexAttribPointer(color_attribute, 3, Gl.GL_FLOAT, Gl.GL_FALSE, 0, IntPtr.Zero);
+
+                Gl.glBindBuffer(Gl.GL_ELEMENT_ARRAY_BUFFER, index_buffer);
+
+                Gl.glDrawElements(Gl.GL_TRIANGLES, indices.Length, Gl.GL_UNSIGNED_INT, IntPtr.Zero);
+
+                Gl.glDisableVertexAttribArray(coords_attribute);
+
+                Gl.glDisableVertexAttribArray(color_attribute);
+
+                Gl.glBindBuffer(Gl.GL_ARRAY_BUFFER, 0);
+                Gl.glBindBuffer(Gl.GL_ELEMENT_ARRAY_BUFFER, 0);
+
+                Gl.glDeleteBuffers(1, ref coords_buffer);
+                Gl.glDeleteBuffers(1, ref color_buffer);
+                Gl.glDeleteBuffers(1, ref index_buffer);
+
+                if (shader.id != -1)
+                    Gl.glUseProgram(0);
+
+            }
+            
+            /****************************END TEST*************************************/
 
             //foreach (var obj in physic_objects)
             //    obj.calculate_physics();
@@ -385,41 +462,51 @@ namespace Physics_Simulation
 
         public static bool init(ref SimpleOpenGlControl canvas)
         {
-            if (!initialized)
+            try
             {
-                initializeComponents();
+                if (!initialized)
+                {
+                    initializeComponents();
 
-                graphics = canvas;
-                graphics.InitializeContexts();
+                    graphics = canvas;
+                    graphics.InitializeContexts();
 
-                Glut.glutInit();
-                Glut.glutInitDisplayMode(Glut.GLUT_RGB | Glut.GLUT_DOUBLE | Glut.GLUT_DEPTH);
-                Il.ilInit();
-                Il.ilEnable(Il.IL_ORIGIN_SET);
-                Gl.glViewport(0, 0, graphics.Width, graphics.Height);
-                Gl.glMatrixMode(Gl.GL_PROJECTION);
-                Gl.glLoadIdentity();
-                Glu.gluPerspective(45, (float)graphics.Width / (float)graphics.Height, 0.1, 20000);
-                Gl.glMatrixMode(Gl.GL_MODELVIEW);
-                Gl.glLoadIdentity();
-                Gl.glEnable(Gl.GL_DEPTH_TEST);
-                Gl.glEnable(Gl.GL_LIGHTING);
-                Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);
+                    camera = new Camera(new Rectangle(graphics.PointToScreen(Point.Empty), graphics.Size));
 
-                userConfiguration.setDefaultConfiguration();
+                    Glut.glutInit();
+                    Glut.glutInitDisplayMode(Glut.GLUT_RGB | Glut.GLUT_DOUBLE | Glut.GLUT_DEPTH);
+                    Il.ilInit();
+                    Il.ilEnable(Il.IL_ORIGIN_SET);
+                    Gl.glViewport(0, 0, graphics.Width, graphics.Height);
+                    Gl.glMatrixMode(Gl.GL_PROJECTION);
+                    Gl.glLoadIdentity();
+                    Glu.gluPerspective(45, (float)graphics.Width / (float)graphics.Height, 0.1, 20000);
+                    Gl.glMatrixMode(Gl.GL_MODELVIEW);
+                    Gl.glLoadIdentity();
+                    Gl.glEnable(Gl.GL_DEPTH_TEST);
+                    //Gl.glEnable(Gl.GL_LIGHTING); // TODO: uncomment to get lights?
+                    Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);
 
-                drawingTimer.Interval = 1000 / userConfiguration.FPS;
-                drawingTimer.Tick += new EventHandler(drawAll);
-                drawingTimer.Start();
+                    userConfiguration.setDefaultConfiguration();
 
-                if (!initializeShaders())
-                    throw new Exception();
+                    drawingTimer.Interval = 1000 / userConfiguration.FPS;
+                    drawingTimer.Tick += new EventHandler(drawAll);
+                    drawingTimer.Start();
 
-                initialized = true;
+                    if (!initializeShaders())
+                        throw new Exception();
+
+                    initialized = true;
+                }
+                else return false;
+
+                return true;
             }
-            else return false;
-
-            return true;
+            catch (Exception)
+            {
+                drawingTimer.Stop();
+                return false;
+            }
         }
 
         #endregion

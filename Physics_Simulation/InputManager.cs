@@ -4,6 +4,8 @@ namespace Physics_Simulation
 {
     public enum MouseEventType
     {
+        ENTER,
+        LEAVE,
         CLICK,
         DOUBLE_CLICK,
         DOWN,
@@ -58,6 +60,16 @@ namespace Physics_Simulation
         {
             mouseEvent.Invoke(MouseEventType.WHEEL, mouse_args);
         }
+
+        private void mouseEnterHandler(object sender, System.EventArgs system_args)
+        {
+            mouseEvent.Invoke(MouseEventType.ENTER, system_args as MouseEventArgs);
+        }
+
+        private void mouseLeaveHandler(object sender, System.EventArgs system_args)
+        {
+            mouseEvent.Invoke(MouseEventType.LEAVE, system_args as MouseEventArgs);
+        }
         /**************************************************************************************/
 
 
@@ -76,6 +88,7 @@ namespace Physics_Simulation
         {
             keyPressEvent.Invoke(KeyEventType.PRESSED, keyb_args);
         }
+
         /**************************************************************************************/
 
         #endregion
@@ -93,6 +106,8 @@ namespace Physics_Simulation
                 ctrl.MouseMove        += mouseMoveHandler;
                 ctrl.MouseUp          += mouseUpHandler;
                 ctrl.MouseWheel       += mouseWheelHandler;
+                ctrl.MouseEnter       += mouseEnterHandler;
+                ctrl.MouseLeave       += mouseLeaveHandler;
 
                 // keyboard handle section
                 ctrl.KeyDown  += keyDownEventHandler;
