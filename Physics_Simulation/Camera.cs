@@ -46,15 +46,29 @@ namespace Physics_Simulation
             
         }
         
-        private void keyboardEvent(KeyEventType keyEventType, KeyEventArgs key_args)
+        private void keyDownUpEvent(KeyEventType keyEventType, KeyEventArgs key_args)
         {
             // TODO: implement camera moving behavior
+        }
+
+        private void keyPressEvent(KeyEventType keyEventType, KeyPressEventArgs key_args)
+        {
+            switch (keyEventType)
+            {
+                case KeyEventType.PRESSED:
+                    if (key_args.KeyChar == (char)Keys.Enter)
+                        Render.changeWindowState();
+                    break;
+                default:
+                    break;
+            }
         }
 
         private void attachInput()
         {
             Program.getInputManagerFromMainForm().mouseEvent     += mouseEvent;
-            Program.getInputManagerFromMainForm().keyDownUpEvent += keyboardEvent;
+            Program.getInputManagerFromMainForm().keyDownUpEvent += keyDownUpEvent;
+            Program.getInputManagerFromMainForm().keyPressEvent  += keyPressEvent;
         }
 
         private Point screenCursorPosToWindow()

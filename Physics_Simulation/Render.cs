@@ -241,7 +241,6 @@ namespace Physics_Simulation
             Gl.glRasterPos2i(0, 0);
             setColor(Color.Red);
             Gl.glScaled(0.2, 0.2, 0.2);
-            Gl.glTranslated(0, 3500, 0);
             Glut.glutStrokeString(Glut.GLUT_STROKE_ROMAN, userConfiguration.message);
             
             Gl.glPopMatrix();
@@ -493,7 +492,6 @@ namespace Physics_Simulation
                     Gl.glMatrixMode(Gl.GL_MODELVIEW);
                     Gl.glLoadIdentity();
                     Gl.glEnable(Gl.GL_DEPTH_TEST);
-                    //Gl.glEnable(Gl.GL_LIGHTING); // TODO: uncomment to get lights?
                     Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);
 
                     userConfiguration.setDefaultConfiguration();
@@ -516,6 +514,19 @@ namespace Physics_Simulation
                 drawingTimer.Stop();
                 return false;
             }
+        }
+
+        public static void changeWindowState()
+        {
+            graphics.ParentForm.WindowState = graphics.ParentForm.WindowState == FormWindowState.Normal ? FormWindowState.Maximized : FormWindowState.Normal;
+            graphics.ParentForm.FormBorderStyle = graphics.ParentForm.FormBorderStyle == FormBorderStyle.FixedDialog ? FormBorderStyle.None : FormBorderStyle.FixedDialog;
+            // reset viewport and perspective
+            Gl.glViewport(0, 0, graphics.Width, graphics.Height);
+            Gl.glMatrixMode(Gl.GL_PROJECTION);
+            Gl.glLoadIdentity();
+            Glu.gluPerspective(45, (float)graphics.Width / (float)graphics.Height, 0.1, 20000);
+            Gl.glMatrixMode(Gl.GL_MODELVIEW);
+            Gl.glLoadIdentity();
         }
 
         #endregion
