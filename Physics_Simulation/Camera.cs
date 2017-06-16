@@ -2,6 +2,8 @@
 using System.Windows.Forms;
 using System.Drawing;
 using System;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace Physics_Simulation
 {
@@ -9,10 +11,43 @@ namespace Physics_Simulation
     {
         #region private_members
 
-        private Point3D   eye_position;
-        private Point3D   center_position;
-        private Point3D   up_position;
+        private Vector3   eye_position;
+        private Vector3   lookAt_position;
+        private Vector3   up_position;
         private Rectangle cameraWindow;
+
+        private Timer     movingTimer;
+
+        private class MovingStateMapItem
+        {
+            #region public_members
+
+            public readonly Direction direction;
+            public readonly Keys      key;
+            public bool     isMoving  { get; private set; }
+
+            public MovingStateMapItem(Direction direction, Keys key, bool isMoving)
+            {
+                this.direction = direction;
+                this.key       = key;
+                this.isMoving  = isMoving;
+            }
+
+            public void changeState(bool newState)
+            {
+                isMoving = newState;
+            }
+
+            #endregion
+        }
+
+        private readonly List<MovingStateMapItem> movingStateMap = new List<MovingStateMapItem>()
+        {
+            new MovingStateMapItem( Direction.FORWARD,  Keys.W, false ),
+            new MovingStateMapItem( Direction.BACKWARD, Keys.S, false ),
+            new MovingStateMapItem( Direction.LEFT,     Keys.A, false ),
+            new MovingStateMapItem( Direction.RIGHT,    Keys.D, false )
+        };
 
         private void mouseEvent(MouseEventType mouseEvent, MouseEventArgs mouseArgs)
         {
@@ -31,24 +66,38 @@ namespace Physics_Simulation
                 case MouseEventType.MOVE:
                     mouseReverse(cursorPos, borders);
 
-                    double alpha = mapCursorCoordsToAngle(cursorPos.X, borders.Right, Math.PI * 2);
-                    double beta = mapCursorCoordsToAngle(cursorPos.Y, borders.Bottom, Math.PI);
+                    const double HALF_CIRCLE = 180;
+                    const double FULL_CIRCLE = HALF_CIRCLE * 2;
 
-                    double x = eye_position.x + Math.Cos(alpha);
-                    double y = eye_position.y + Math.Cos(beta);
-                    double z = eye_position.z + Math.Sin(alpha);
+                    double alpha = mapCursorCoordsToAngle(cursorPos.X, borders.Right, FULL_CIRCLE);
+                    double beta  = mapCursorCoordsToAngle(cursorPos.Y, borders.Bottom, HALF_CIRCLE);
 
-                    center_position = new Point3D(x, y, z);
-             
+                    lookAt_position = ExtendedMath.rotated_vector(lookAt_position, eye_position, alpha, beta);
+
                     break;
                 default : break;
-            }
-            
+            }          
         }
-        
+
         private void keyDownUpEvent(KeyEventType keyEventType, KeyEventArgs key_args)
         {
-            // TODO: implement camera moving behavior
+            if (keyEventType == KeyEventType.DOWN)
+            {
+                MovingStateMapItem state = movingStateMap.Find(s => s.key == key_args.KeyCode);
+
+                if (state != null)
+                    state.changeState(true);
+                
+            }
+
+            if (keyEventType == KeyEventType.UP)
+            {
+                MovingStateMapItem state = movingStateMap.Find(s => s.key == key_args.KeyCode);
+
+                if (state != null)
+                    state.changeState(false);
+
+            }       
         }
 
         private void keyPressEvent(KeyEventType keyEventType, KeyPressEventArgs key_args)
@@ -99,6 +148,50 @@ namespace Physics_Simulation
             return maxAngle * percentage;
         }
 
+        private void initMovingTimer()
+        {
+            movingTimer = new Timer();
+            movingTimer.Enabled  = true;
+            movingTimer.Interval = 1;
+            movingTimer.Tick    += new EventHandler(cameraMove);
+        }
+
+        private void cameraMove(object sender, EventArgs args)
+        {
+            Vector3 direction = ExtendedMath.translated_vector(eye_position, lookAt_position, Render.userConfiguration.cameraSpeed + 1);
+
+            foreach (var state in movingStateMap.FindAll(state => state.isMoving))
+            {
+
+                // TODO: implementation is INCOMPLETE and nearly WRONG!!! COMPLETE IT!!!
+                switch (state.direction)
+                {
+                    case Direction.FORWARD:
+                        break;
+                    case Direction.BACKWARD:
+                        direction *= ExtendedMath.rotated_vector(direction, eye_position, 180, 0);
+                        break;
+                    case Direction.LEFT:
+                        direction *= ExtendedMath.rotated_vector(direction, eye_position, -90, 0);
+                        break;
+                    case Direction.RIGHT:
+                        direction *= ExtendedMath.rotated_vector(direction, eye_position, 90, 0);
+                        break;
+
+                    default:
+                        break;
+                }
+
+                double speed    = Render.userConfiguration.cameraSpeed / (double)Render.userConfiguration.FPS;
+                eye_position    = ExtendedMath.translated_vector(eye_position,    direction, speed);
+                lookAt_position = ExtendedMath.translated_vector(lookAt_position, direction, speed);
+            }
+
+            Render.userConfiguration.message = "eye: x:" + eye_position.x.ToString() + " y:" + eye_position.y.ToString() + " z:" + eye_position.z.ToString() + "\n";
+            Render.userConfiguration.message += "lookAt: x:" + lookAt_position.x.ToString() + " y:" + lookAt_position.y.ToString() + " z:" + lookAt_position.z.ToString() + "\n";
+            Render.userConfiguration.message += "Direction: x:" + direction.x.ToString() + " y:" + direction.y.ToString() + " z:" + direction.z.ToString();
+        }
+
         #endregion
 
         #region public_members
@@ -107,17 +200,19 @@ namespace Physics_Simulation
         {
             this.cameraWindow = cameraWindow;
 
-            eye_position    = new Point3D(0,0,1);
-            center_position = new Point3D(0,0,0);
-            up_position     = new Point3D(0,1,0);
+            eye_position    = new Vector3(0,0,5);
+            lookAt_position = new Vector3(0,0,0);
+            up_position     = new Vector3(0,1,0);
 
             attachInput();
+
+            initMovingTimer();
         }
 
         public void renderCamera()
         {               
             Glu.gluLookAt(eye_position.x,    eye_position.y,    eye_position.z,
-                          center_position.x, center_position.y, center_position.z,
+                          lookAt_position.x, lookAt_position.y, lookAt_position.z,
                           up_position.x,     up_position.y,     up_position.z);
         }
 

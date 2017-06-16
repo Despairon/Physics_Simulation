@@ -10,7 +10,7 @@ using System.Diagnostics;
 
 namespace Physics_Simulation
 {
-    public enum DIRECTION
+    public enum Direction
     {
         NONE,
         UP,
@@ -19,24 +19,6 @@ namespace Physics_Simulation
         RIGHT,
         FORWARD,
         BACKWARD
-    }
-
-    public struct Point3D
-    {
-        #region public members
-
-        public Point3D(double x, double y, double z)
-        {
-            this.x = x;
-            this.y = y;
-            this.z = z;
-        }
-
-        public double x;
-        public double y;
-        public double z;
-
-        #endregion
     }
     
     public static class Render
@@ -101,7 +83,7 @@ namespace Physics_Simulation
             return loadTexture(cubemap_face);
         }
 
-        private static void drawCubemapFace(int cubemap_face, DIRECTION direction)
+        private static void drawCubemapFace(int cubemap_face, Direction direction)
         {
             Gl.glEnable(Gl.GL_TEXTURE_2D);
 
@@ -113,29 +95,29 @@ namespace Physics_Simulation
           
             switch (direction)
             {
-                case DIRECTION.RIGHT:
+                case Direction.RIGHT:
                     Gl.glTranslated(1,0,0);
                     Gl.glRotated(180, 0, 1, 0);
                     Gl.glRotated(90, 0, 1, 0);
                     break;
-                case DIRECTION.LEFT:
+                case Direction.LEFT:
                     Gl.glTranslated(-1, 0, 0);
                     Gl.glRotated(180, 0, 1, 0);
                     Gl.glRotated(-90, 0, 1, 0);
                     break;
-                case DIRECTION.UP:
+                case Direction.UP:
                     Gl.glTranslated(0, 1, 0);
                     Gl.glRotated(90, 1, 0, 0);
                     break;
-                case DIRECTION.DOWN:
+                case Direction.DOWN:
                     Gl.glTranslated(0, -1, 0);
                     Gl.glRotated(90, 1, 0, 0);
                     Gl.glRotated(180, 1,0, 0);
                     break;
-                case DIRECTION.FORWARD:
+                case Direction.FORWARD:
                     Gl.glTranslated(0, 0, -1);
                     break;
-                case DIRECTION.BACKWARD:
+                case Direction.BACKWARD:
                     Gl.glTranslated(0, 0, 1);
                     Gl.glRotated(180, 0, 1, 0);
                     break;
@@ -161,12 +143,12 @@ namespace Physics_Simulation
             if (cubemap.right  != -1 && cubemap.left != -1 && cubemap.top   != -1 &&
                 cubemap.bottom != -1 && cubemap.back != -1 && cubemap.front != -1)
             {
-                drawCubemapFace(cubemap.right,  DIRECTION.RIGHT);
-                drawCubemapFace(cubemap.left,   DIRECTION.LEFT);
-                drawCubemapFace(cubemap.top,    DIRECTION.UP);
-                drawCubemapFace(cubemap.bottom, DIRECTION.DOWN);
-                drawCubemapFace(cubemap.back,   DIRECTION.BACKWARD);
-                drawCubemapFace(cubemap.front,  DIRECTION.FORWARD);
+                drawCubemapFace(cubemap.right,  Direction.RIGHT);
+                drawCubemapFace(cubemap.left,   Direction.LEFT);
+                drawCubemapFace(cubemap.top,    Direction.UP);
+                drawCubemapFace(cubemap.bottom, Direction.DOWN);
+                drawCubemapFace(cubemap.back,   Direction.BACKWARD);
+                drawCubemapFace(cubemap.front,  Direction.FORWARD);
             }
         }
 
@@ -240,6 +222,7 @@ namespace Physics_Simulation
 
             Gl.glRasterPos2i(0, 0);
             setColor(Color.Red);
+            Gl.glTranslated(0,graphics.Height - 25,0);
             Gl.glScaled(0.2, 0.2, 0.2);
             Glut.glutStrokeString(Glut.GLUT_STROKE_ROMAN, userConfiguration.message);
             
@@ -275,9 +258,9 @@ namespace Physics_Simulation
                 int color_buffer;
                 int index_buffer;
 
-                float color_r = 0.1f;//(float)Math.Sin((double)DateTime.Now.Millisecond)   * 0.367f; // TODO: uncomment when shaders are working
-                float color_g = 0.2f;//((float)Math.Sin((double)DateTime.Now.Millisecond)) * 0.760f;
-                float color_b = 0.3f;//((float)Math.Sin((double)DateTime.Now.Millisecond)) * 1.500f;
+                float color_r = 0.3f;//(float)Math.Sin((double)DateTime.Now.Millisecond)   * 0.367f; // TODO: uncomment when shaders are working
+                float color_g = 0.5f;//((float)Math.Sin((double)DateTime.Now.Millisecond)) * 0.760f;
+                float color_b = 0.2f;//((float)Math.Sin((double)DateTime.Now.Millisecond)) * 1.500f;
 
                 float[,] vertices = new float[,]
                 {
@@ -313,7 +296,7 @@ namespace Physics_Simulation
                 Gl.glBindBuffer(Gl.GL_ELEMENT_ARRAY_BUFFER, index_buffer);
                 Gl.glBufferData(Gl.GL_ELEMENT_ARRAY_BUFFER, new IntPtr(indices.Length * sizeof(int)), indices , Gl.GL_STATIC_DRAW);
                 
-                /*Gl.glPushMatrix();
+                Gl.glPushMatrix();
 
                 float angle = (float)Stopwatch.GetTimestamp() / 100000.0f;
                 Gl.glTranslated(0, 0, -3);
@@ -323,7 +306,7 @@ namespace Physics_Simulation
                 Gl.glGetFloatv(Gl.GL_MODELVIEW_MATRIX,view_matrix);
                 Gl.glUniformMatrix4fv(matrix_uniform,1,Gl.GL_FALSE,view_matrix);
 
-                Gl.glPopMatrix();*/
+                Gl.glPopMatrix();
 
                 Gl.glBindBuffer(Gl.GL_ELEMENT_ARRAY_BUFFER, index_buffer);
                 
@@ -337,7 +320,10 @@ namespace Physics_Simulation
 
                 Gl.glBindBuffer(Gl.GL_ELEMENT_ARRAY_BUFFER, index_buffer);
 
-                Gl.glDrawElements(Gl.GL_TRIANGLES, indices.Length, Gl.GL_UNSIGNED_INT, IntPtr.Zero);
+                setColor(Color.Blue);
+                Glut.glutSolidSphere(0.3, 100, 100); // TODO: delete and uncomment below
+                //Gl.glDrawElements(Gl.GL_TRIANGLES, indices.Length, Gl.GL_UNSIGNED_INT, IntPtr.Zero);
+
 
                 Gl.glDisableVertexAttribArray(coords_attribute);
 
@@ -383,6 +369,7 @@ namespace Physics_Simulation
             private Color  _backgroundColor;
             private string _backgroundCubemapImage;
             private string _message;
+            private double _cameraSpeed;
 
             #endregion
 
@@ -391,6 +378,8 @@ namespace Physics_Simulation
             public void setDefaultConfiguration()
             {
                 _FPS = 100;
+
+                _cameraSpeed = 1;
 
                 _backgroundColor = Color.Gray;
                 float r = (float)_backgroundColor.R / 256;
@@ -449,20 +438,23 @@ namespace Physics_Simulation
                     {
                         
                     }
+
                     _backgroundCubemapImage = value;
                 }
             }
 
             public string message
             {
-                get
-                {
-                    return _message;
-                }
-                set
-                {
-                    _message = value;
-                }
+                get { return _message;  }
+
+                set { _message = value; }
+            }
+
+            public double cameraSpeed
+            {
+                get { return _cameraSpeed;  }
+
+                set { _cameraSpeed = value; }
             }
 
             #endregion
