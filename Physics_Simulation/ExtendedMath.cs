@@ -2,54 +2,6 @@
 
 namespace Physics_Simulation
 {
-    public struct Vector2
-    {
-        public Vector2(double x, double y)
-        {
-            this.x = x;
-            this.y = y;
-        }
-
-        public double x;
-        public double y;
-
-        // Vector product
-        public static double operator *(Vector2 left, Vector2 right)
-        {
-            double result = (left.x * right.y) - (left.y * right.x);
-
-            return result;
-        }
-
-        // Dot product
-        public static double operator ^(Vector2 left, Vector2 right)
-        {
-            double result = (left.x * right.x) + (left.y * right.y);
-
-            return result;
-        }
-
-        public static Vector2 operator -(Vector2 left, Vector2 right)
-        {
-            Vector2 result = new Vector2();
-
-            result.x = left.x - right.x;
-            result.y = left.y - right.y;
-
-            return result;
-        }
-
-        public static Vector2 operator +(Vector2 left, Vector2 right)
-        {
-            Vector2 result = new Vector2();
-
-            result.x = left.x + right.x;
-            result.y = left.y + right.y;
-
-            return result;
-        }
-    }
-
     public struct Vector3
     {
         public Vector3(double x, double y, double z)
@@ -103,6 +55,71 @@ namespace Physics_Simulation
             result.z = left.z + right.z;
 
             return result;
+        }
+    }
+
+    public struct Vector4
+    {
+        public Vector4(double x, double y, double z, double w)
+        {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.w = w;
+        }
+
+        public double x;
+        public double y;
+        public double z;
+        public double w;
+    }
+
+    public struct Matrix4
+    {
+        public Matrix4(double[,] values)
+        {
+            this.values = new double[4, 4];
+
+            if (values.Length == this.values.Length)
+                this.values = values;
+            else return;
+        }
+
+        private double[,] values;
+
+        public double this[int x_index, int y_index]
+        {
+            get
+            {
+                return values[x_index, y_index];
+            }
+            set
+            {
+                values[x_index, y_index] = value;
+            }
+        }
+
+        public static Matrix4 operator *(Matrix4 left, Matrix4 right)
+        {
+            double[,] result = new double[4, 4];
+
+            // TODO: implement
+
+            return new Matrix4(result);
+        }
+
+        public static Matrix4 operator *(Matrix4 left, Vector4 right)
+        {
+            double[,] result = new double[4, 4];
+
+            // TODO: implement
+
+            return new Matrix4(result);
+        }
+
+        public static Matrix4 operator *(Vector4 left, Matrix4 right)
+        {
+            return (right * left);
         }
     }
 

@@ -162,11 +162,11 @@ namespace Physics_Simulation
 
             foreach (var state in movingStateMap.FindAll(state => state.isMoving))
             {
-
                 // TODO: implementation is INCOMPLETE and nearly WRONG!!! COMPLETE IT!!!
                 switch (state.direction)
                 {
                     case Direction.FORWARD:
+                        direction = ExtendedMath.translated_vector(eye_position, lookAt_position, Render.userConfiguration.cameraSpeed + 1);
                         break;
                     case Direction.BACKWARD:
                         direction *= ExtendedMath.rotated_vector(direction, eye_position, 180, 0);
@@ -187,9 +187,9 @@ namespace Physics_Simulation
                 lookAt_position = ExtendedMath.translated_vector(lookAt_position, direction, speed);
             }
 
-            Render.userConfiguration.message = "eye: x:" + eye_position.x.ToString() + " y:" + eye_position.y.ToString() + " z:" + eye_position.z.ToString() + "\n";
-            Render.userConfiguration.message += "lookAt: x:" + lookAt_position.x.ToString() + " y:" + lookAt_position.y.ToString() + " z:" + lookAt_position.z.ToString() + "\n";
-            Render.userConfiguration.message += "Direction: x:" + direction.x.ToString() + " y:" + direction.y.ToString() + " z:" + direction.z.ToString();
+            Render.userConfiguration.message =  "eye: x:"       + eye_position.x.ToString()    + " y:" + eye_position.y.ToString()    + " z:" + eye_position.z.ToString()    + "\n";
+            Render.userConfiguration.message += "lookAt: x:"    + lookAt_position.x.ToString() + " y:" + lookAt_position.y.ToString() + " z:" + lookAt_position.z.ToString() + "\n";
+            Render.userConfiguration.message += "Direction: x:" + direction.x.ToString()       + " y:" + direction.y.ToString()       + " z:" + direction.z.ToString();
         }
 
         #endregion
@@ -214,6 +214,11 @@ namespace Physics_Simulation
             Glu.gluLookAt(eye_position.x,    eye_position.y,    eye_position.z,
                           lookAt_position.x, lookAt_position.y, lookAt_position.z,
                           up_position.x,     up_position.y,     up_position.z);
+        }
+
+        public Vector3 getPosition()
+        {
+            return eye_position;
         }
 
         #endregion
