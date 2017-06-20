@@ -66,13 +66,13 @@ namespace Physics_Simulation
                 case MouseEventType.MOVE:
                     mouseReverse(cursorPos, borders);
 
-                    const double HALF_CIRCLE = 180;
-                    const double FULL_CIRCLE = HALF_CIRCLE * 2;
+                    double alpha = mapCursorCoordsToAngle(cursorPos.X, borders.Right, Math.PI * 2);
+                    double beta  = mapCursorCoordsToAngle(cursorPos.Y, borders.Bottom, Math.PI);
 
-                    double alpha = mapCursorCoordsToAngle(cursorPos.X, borders.Right, FULL_CIRCLE);
-                    double beta  = mapCursorCoordsToAngle(cursorPos.Y, borders.Bottom, HALF_CIRCLE);
+                    //lookAt_position = ExtendedMath.rotated_vector(lookAt_position, eye_position, alpha, beta);
+                    // TODO: fixme!!!
 
-                    lookAt_position = ExtendedMath.rotated_vector(lookAt_position, eye_position, alpha, beta);
+                    lookAt_position.rotate(alpha, beta, alpha);
 
                     break;
                 default : break;
@@ -157,7 +157,7 @@ namespace Physics_Simulation
         }
 
         private void cameraMove(object sender, EventArgs args)
-        {
+        {                 
             Vector3 direction = ExtendedMath.translated_vector(eye_position, lookAt_position, Render.userConfiguration.cameraSpeed + 1);
 
             foreach (var state in movingStateMap.FindAll(state => state.isMoving))

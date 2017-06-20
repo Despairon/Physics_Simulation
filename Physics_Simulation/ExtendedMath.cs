@@ -27,6 +27,37 @@ namespace Physics_Simulation
             return result;
         }
 
+        public static Vector3 operator *(Vector3 left, double right)
+        {
+            left.x *= right;
+            left.y *= right;
+            left.z *= right;
+
+            return left;
+        }
+
+        public static Vector3 operator *(double left, Vector3 right)
+        {
+            return (right * left);
+        }
+
+        public static Vector3 operator /(Vector3 left, double right)
+        {
+            if (right != 0)
+            {
+                left.x /= right;
+                left.y /= right;
+                left.z /= right;
+            }
+
+            return left;
+        }
+
+        public static Vector3 operator /(double left, Vector3 right)
+        {
+            return (right / left);
+        }
+
         // Dot product
         public static double operator ^(Vector3 left, Vector3 right)
         {
@@ -56,6 +87,103 @@ namespace Physics_Simulation
 
             return result;
         }
+
+        public void translate(double x, double y, double z)
+        {
+            double[,] translation = new double[4, 4]
+            {
+                { 1, 0, 0, x },
+                { 0, 1, 0, y },
+                { 0, 0, 0, z },
+                { 0, 0, 0, 1 }
+            };
+
+            Matrix4 translationMatrix = new Matrix4(translation);
+
+            Vector4 resultVector = new Vector4(this.x, this.y, this.z, 1);
+
+            resultVector *= translationMatrix;
+
+            this = resultVector.vector3;
+        }
+
+        public void rotate(double ox, double oy, double oz)
+        {
+            double[,] rotationOX;
+            double[,] rotationOY;
+            double[,] rotationOZ;
+
+            rotationOX = new double[4, 4]
+            {
+                { 1, 0,                      0,            0 },
+                { 0, Math.Cos(ox),           Math.Sin(ox), 0 },
+                { 0, Math.Sin(ox) * (-1.0f), Math.Cos(ox), 0 },
+                { 0, 0,                      0,            1 }
+            };
+
+            rotationOY = new double[4, 4]
+            {
+                { Math.Cos(oy),           0, Math.Sin(oy), 0 },
+                { 0,                      1, 0,            0 },
+                { Math.Sin(oy) * (-1.0f), 0, Math.Cos(oy), 0 },
+                { 0,                      0, 0,            1 }
+            };
+
+            rotationOZ = new double[4, 4]
+            {
+                { Math.Cos(oz),           Math.Sin(oz), 0, 0 },
+                { Math.Sin(oz) * (-1.0f), Math.Cos(oz), 0, 0 },
+                { 0,                      0,            1, 0 },
+                { 0,                      0,            0, 1 }
+            };
+
+            Matrix4 rotationMatOX = new Matrix4(rotationOX);
+            Matrix4 rotationMatOY = new Matrix4(rotationOY);
+            Matrix4 rotationMatOZ = new Matrix4(rotationOZ);
+
+            Vector4 resultVector = new Vector4(this.x, this.y, this.z, 1);
+
+            resultVector *= rotationMatOX;
+            resultVector *= rotationMatOY;
+            resultVector *= rotationMatOZ;
+            // TODO: complete implementation. Looks like we should use LOCAL COORDS in calculations here!!!
+            this = resultVector.vector3;
+        }
+
+        public void scale(double x, double y, double z)
+        {
+            double[,] scaling = new double[4, 4]
+            {
+                { x, 0, 0, 0 },
+                { 0, y, 0, 0 },
+                { 0, 0, z, 0 },
+                { 0, 0, 0, 1 }
+            };
+
+            Matrix4 scaleMatrix = new Matrix4(scaling);
+
+            Vector4 resultVector = new Vector4(this.x, this.y, this.z, 1);
+
+            resultVector *= scaleMatrix;
+
+            this = resultVector.vector3;
+        }
+
+        public double getLength()
+        {
+            return Math.Sqrt(Math.Pow(x,2) + Math.Pow(y,2) + Math.Pow(z,2));
+        }
+
+        public void normalize()
+        {
+            double length = getLength();
+            if (length != 0)
+            {
+                this.x /= length;
+                this.y /= length;
+                this.z /= length;
+            }
+        }
     }
 
     public struct Vector4
@@ -72,6 +200,14 @@ namespace Physics_Simulation
         public double y;
         public double z;
         public double w;
+
+        public Vector3 vector3
+        {
+            get
+            {
+                return new Vector3(x,y,z);
+            }
+        }
     }
 
     public struct Matrix4
@@ -154,14 +290,11 @@ namespace Physics_Simulation
             return vector;
         }
 
-        public static Vector3 rotated_vector(Vector3 vector, Vector3 vectorStart, double xAxisDegrees, double yAxisDegrees)
+        public static Vector3 rotated_vector(Vector3 vector, Vector3 vectorStart, double xAxisAngle, double yAxisAngle)
         {
-            double alpha = degreesToRadians(xAxisDegrees);
-            double beta  = degreesToRadians(yAxisDegrees);
-
-            vector.x = vectorStart.x + Math.Cos(alpha);
-            vector.y = vectorStart.y + Math.Cos(beta);
-            vector.z = vectorStart.z + Math.Sin(alpha);
+            vector.x = vectorStart.x + Math.Cos(xAxisAngle);
+            vector.y = vectorStart.y + Math.Cos(yAxisAngle);
+            vector.z = vectorStart.z + Math.Sin(xAxisAngle);
 
             return vector;
         }

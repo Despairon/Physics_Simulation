@@ -328,7 +328,6 @@ namespace Physics_Simulation
                 Glut.glutSolidSphere(0.3, 100, 100); // TODO: delete and uncomment below
                 //Gl.glDrawElements(Gl.GL_TRIANGLES, indices.Length, Gl.GL_UNSIGNED_INT, IntPtr.Zero);
 
-
                 Gl.glDisableVertexAttribArray(coords_attribute);
 
                 Gl.glDisableVertexAttribArray(color_attribute);
