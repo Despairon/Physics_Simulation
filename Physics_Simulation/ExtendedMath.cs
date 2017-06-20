@@ -103,21 +103,31 @@ namespace Physics_Simulation
         {
             double[,] result = new double[4, 4];
 
-            // TODO: implement
+            for (int y = 0; y < 4; y++)
+                for (int x = 0; x < 4; x++)
+                {
+                    double sum = 0;
+                    for (int z = 0; z < 4; z++)
+                            sum += (left[x,z]*right[z,y]);
+                    result[x,y] = sum;
+                }
 
             return new Matrix4(result);
         }
 
-        public static Matrix4 operator *(Matrix4 left, Vector4 right)
+        public static Vector4 operator *(Matrix4 left, Vector4 right)
         {
-            double[,] result = new double[4, 4];
+            Vector4 resultVector = new Vector4();
 
-            // TODO: implement
+            resultVector.x = (left[0, 0] * right.x) + (left[0, 1] * right.y) + (left[0, 2] * right.z) + (left[0, 3] * right.w);
+            resultVector.y = (left[1, 0] * right.x) + (left[1, 1] * right.y) + (left[1, 2] * right.z) + (left[1, 3] * right.w);
+            resultVector.z = (left[2, 0] * right.x) + (left[2, 1] * right.y) + (left[2, 2] * right.z) + (left[2, 3] * right.w);
+            resultVector.w = (left[3, 0] * right.x) + (left[3, 1] * right.y) + (left[3, 2] * right.z) + (left[3, 3] * right.w);
 
-            return new Matrix4(result);
+            return resultVector;
         }
 
-        public static Matrix4 operator *(Vector4 left, Matrix4 right)
+        public static Vector4 operator *(Vector4 left, Matrix4 right)
         {
             return (right * left);
         }
