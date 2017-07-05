@@ -38,7 +38,6 @@ namespace Physics_Simulation
             graphics      = null;
             drawingTimer  = new Timer();
             initialized   = false;
-            camera        = new Camera();
             objects       = new List<RenderObject>();
         }
 
@@ -352,7 +351,9 @@ namespace Physics_Simulation
             //    (obj as PhysicalObject).calculate_physics();
 
             foreach (var obj in objects)
+            {
                 obj.draw();
+            }
 
             Gl.glFlush();
 
@@ -476,7 +477,7 @@ namespace Physics_Simulation
                     graphics = canvas;
                     graphics.InitializeContexts();
 
-                    camera.changeWindowPosition(new Rectangle(graphics.PointToScreen(Point.Empty), graphics.Size));
+                    camera = new Camera(new Rectangle(graphics.PointToScreen(Point.Empty), graphics.Size));
 
                     Glut.glutInit();
                     Glut.glutInitDisplayMode(Glut.GLUT_RGB | Glut.GLUT_DOUBLE | Glut.GLUT_DEPTH);
@@ -490,6 +491,8 @@ namespace Physics_Simulation
                     Gl.glLoadIdentity();
                     Gl.glEnable(Gl.GL_DEPTH_TEST);
                     Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);
+
+                    
 
                     userConfiguration.setDefaultConfiguration();
 
@@ -524,11 +527,6 @@ namespace Physics_Simulation
             Glu.gluPerspective(45, (float)graphics.Width / (float)graphics.Height, 0.1, 20000);
             Gl.glMatrixMode(Gl.GL_MODELVIEW);
             Gl.glLoadIdentity();
-        }
-
-        public static void onWindowMove(object sender, EventArgs args)
-        {
-            camera.changeWindowPosition(new Rectangle(graphics.PointToScreen(Point.Empty), graphics.Size));
         }
 
         public static void instantiateObject(RenderObject obj)

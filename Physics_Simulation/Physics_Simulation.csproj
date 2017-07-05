@@ -60,6 +60,7 @@
     <Compile Include="ExtendedMath.cs" />
     <Compile Include="IDrawable.cs" />
     <Compile Include="InputManager.cs" />
+    <Compile Include="ITransformable.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>

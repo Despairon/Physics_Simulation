@@ -90,15 +90,7 @@ namespace Physics_Simulation
 
         public void translate(double x, double y, double z)
         {
-            double[,] translation = new double[4, 4]
-            {
-                { 1, 0, 0, x },
-                { 0, 1, 0, y },
-                { 0, 0, 1, z },
-                { 0, 0, 0, 1 }
-            };
-
-            Matrix4 translationMatrix = new Matrix4(translation);
+            Matrix4 translationMatrix = ExtendedMath.translation_matrix(x,y,z);
 
             Vector4 resultVector = new Vector4(this.x, this.y, this.z, 1);
 
@@ -109,39 +101,7 @@ namespace Physics_Simulation
 
         public void rotate(double ox, double oy, double oz)
         {
-            double[,] rotationOX;
-            double[,] rotationOY;
-            double[,] rotationOZ;
-
-            rotationOX = new double[4, 4]
-            {
-                { 1, 0,                      0,            0 },
-                { 0, Math.Cos(ox),           Math.Sin(ox), 0 },
-                { 0, Math.Sin(ox) * (-1.0f), Math.Cos(ox), 0 },
-                { 0, 0,                      0,            1 }
-            };
-
-            rotationOY = new double[4, 4]
-            {
-                { Math.Cos(oy),           0, Math.Sin(oy), 0 },
-                { 0,                      1, 0,            0 },
-                { Math.Sin(oy) * (-1.0f), 0, Math.Cos(oy), 0 },
-                { 0,                      0, 0,            1 }
-            };
-
-            rotationOZ = new double[4, 4]
-            {
-                { Math.Cos(oz),           Math.Sin(oz), 0, 0 },
-                { Math.Sin(oz) * (-1.0f), Math.Cos(oz), 0, 0 },
-                { 0,                      0,            1, 0 },
-                { 0,                      0,            0, 1 }
-            };
-
-            Matrix4 rotationMatOX = new Matrix4(rotationOX);
-            Matrix4 rotationMatOY = new Matrix4(rotationOY);
-            Matrix4 rotationMatOZ = new Matrix4(rotationOZ);
-
-            var resultMatrix = rotationMatOX * rotationMatOY * rotationMatOZ;
+            Matrix4 resultMatrix = ExtendedMath.rotation_matrix(ox, oy, oz);
 
             Vector4 resultVector = new Vector4(this.x, this.y, this.z, 1);
 
@@ -152,15 +112,7 @@ namespace Physics_Simulation
 
         public void scale(double x, double y, double z)
         {
-            double[,] scaling = new double[4, 4]
-            {
-                { x, 0, 0, 0 },
-                { 0, y, 0, 0 },
-                { 0, 0, z, 0 },
-                { 0, 0, 0, 1 }
-            };
-
-            Matrix4 scaleMatrix = new Matrix4(scaling);
+            Matrix4 scaleMatrix = ExtendedMath.scale_matrix(x,y,z);
 
             Vector4 resultVector = new Vector4(this.x, this.y, this.z, 1);
 
@@ -275,6 +227,18 @@ namespace Physics_Simulation
             return (right * left);
         }
 
+        public void transpose()
+        {
+            // TODO: it doesn';t work somewhy
+            Matrix4 copyMat = new Matrix4(values);
+
+            for (int x = 0; x < 4; x++)
+                for (int y = 0; y < 4; y++)
+                {
+                    this[x, y] = copyMat[y, x];
+                }
+        }
+
         public static Matrix4 identity
         {
             get
@@ -302,7 +266,7 @@ namespace Physics_Simulation
 
         public static double radiansToDegrees(double radians)
         {
-            return ( (radians / Math.PI * 2.0f) * 360.0f );
+            return ( (radians / (Math.PI * 2.0f) ) * 360.0f );
         }
 
         public static Vector3 rotated_vector(Vector3 vector, Vector3 vectorStart, double xAxisAngle, double yAxisAngle)
@@ -312,6 +276,69 @@ namespace Physics_Simulation
             vector.z = vectorStart.z + Math.Sin(xAxisAngle);
 
             return vector;
+        }
+
+        public static Matrix4 translation_matrix(double x, double y, double z)
+        {
+            double[,] translation = new double[4, 4]
+            { // TODO: this is not right, but it works, dunno why.
+                { 1, 0, 0, 0 },
+                { 0, 1, 0, 0 },
+                { 0, 0, 1, 0 },
+                { x, y, z, 1 }
+            };
+
+            return new Matrix4(translation);
+        }
+
+        public static Matrix4 rotation_matrix(double ox, double oy, double oz)
+        {
+            double[,] rotationOX;
+            double[,] rotationOY;
+            double[,] rotationOZ;
+
+            rotationOX = new double[4, 4]
+            {
+                { 1, 0,                      0,            0 },
+                { 0, Math.Cos(ox),           Math.Sin(ox), 0 },
+                { 0, Math.Sin(ox) * (-1.0f), Math.Cos(ox), 0 },
+                { 0, 0,                      0,            1 }
+            };
+
+            rotationOY = new double[4, 4]
+            {
+                { Math.Cos(oy),           0, Math.Sin(oy), 0 },
+                { 0,                      1, 0,            0 },
+                { Math.Sin(oy) * (-1.0f), 0, Math.Cos(oy), 0 },
+                { 0,                      0, 0,            1 }
+            };
+
+            rotationOZ = new double[4, 4]
+            {
+                { Math.Cos(oz),           Math.Sin(oz), 0, 0 },
+                { Math.Sin(oz) * (-1.0f), Math.Cos(oz), 0, 0 },
+                { 0,                      0,            1, 0 },
+                { 0,                      0,            0, 1 }
+            };
+
+            Matrix4 rotationMatOX = new Matrix4(rotationOX);
+            Matrix4 rotationMatOY = new Matrix4(rotationOY);
+            Matrix4 rotationMatOZ = new Matrix4(rotationOZ);
+
+            return  rotationMatOX * rotationMatOY * rotationMatOZ;
+        }
+
+        public static Matrix4 scale_matrix(double x, double y, double z)
+        {
+            double[,] scaling = new double[4, 4]
+            {
+                { x, 0, 0, 0 },
+                { 0, y, 0, 0 },
+                { 0, 0, z, 0 },
+                { 0, 0, 0, 1 }
+            };
+
+            return new Matrix4(scaling);
         }
     }
 }

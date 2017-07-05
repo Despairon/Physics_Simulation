@@ -185,9 +185,9 @@ namespace Physics_Simulation
                 lookAt_position.translateByDirection(direction, speed);
             }
 
-            Render.userConfiguration.message =  "eye: x:"       + eye_position.x.ToString()    + " y:" + eye_position.y.ToString()    + " z:" + eye_position.z.ToString()    + "\n";
-            Render.userConfiguration.message += "lookAt: x:"    + lookAt_position.x.ToString() + " y:" + lookAt_position.y.ToString() + " z:" + lookAt_position.z.ToString() + "\n";
-            Render.userConfiguration.message += "Direction: x:" + direction.x.ToString()       + " y:" + direction.y.ToString()       + " z:" + direction.z.ToString();
+            Render.userConfiguration.message = "eye: x:" + eye_position.x.ToString() + " y:" + eye_position.y.ToString() + " z:" + eye_position.z.ToString() + "\n";
+            Render.userConfiguration.message += "lookAt: x:" + lookAt_position.x.ToString() + " y:" + lookAt_position.y.ToString() + " z:" + lookAt_position.z.ToString() + "\n";
+            Render.userConfiguration.message += "Direction: x:" + direction.x.ToString() + " y:" + direction.y.ToString() + " z:" + direction.z.ToString();
             Render.userConfiguration.message += "\nLength: " + (lookAt_position - eye_position).getLength().ToString();
         }
 
@@ -195,8 +195,10 @@ namespace Physics_Simulation
 
         #region public_members
 
-        public Camera()
+        public Camera(Rectangle window)
         {
+            cameraWindow = window;
+
             eye_position    = new Vector3(0,0,5);
             lookAt_position = new Vector3(0,0,4);
             up_position     = new Vector3(0,1,0);
@@ -216,11 +218,6 @@ namespace Physics_Simulation
         public Vector3 getPosition()
         {
             return eye_position;
-        }
-
-        public void changeWindowPosition(Rectangle newPosition)
-        {
-            cameraWindow = newPosition;
         }
 
         #endregion

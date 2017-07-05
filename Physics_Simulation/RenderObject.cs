@@ -25,12 +25,44 @@ namespace Physics_Simulation
         public Vector3 c;
     }
 
-    public class RenderObject : IDrawable
+    public struct Transform
+    {
+        public struct Translation
+        {
+            public double x; public double y; public double z;
+        }
+        public struct Rotation
+        {
+            public double ox; public double oy; public double oz;
+        }
+        public struct Scale
+        {
+            public double x; public double y; public double z;
+        }
+
+        public Translation translation;
+        public Rotation    rotation;
+        public Scale       scale;
+
+        public Transform (double default_value)
+        {
+            translation = new Translation();
+            rotation    = new Rotation();
+            scale       = new Scale();
+
+            translation.x = default_value; translation.y = default_value; translation.z = default_value;
+            rotation.ox   = default_value; rotation.oy   = default_value; rotation.oz   = default_value;
+            scale.x = 1; scale.y = 1; scale.z = 1;
+        }
+    }
+
+    public class RenderObject : IDrawable, ITransformable
     {
         #region private_members
 
         private List<Vector3>  _vertices;
         private Color          _color;
+        private Transform      _transform;
         // private List<Triangle> _indices; // TODO: will need in shaders
 
         #endregion
@@ -63,6 +95,8 @@ namespace Physics_Simulation
                 this.vertices = vertices;
 
             this.color = color;
+
+            _transform = new Transform(0);
         }
 
         public RenderObject(List<Triangle> triangles, Color color)
@@ -78,6 +112,8 @@ namespace Physics_Simulation
                 }
 
             this.color = color;
+
+            _transform = new Transform(0);
         }
 
         public void draw()
@@ -88,7 +124,13 @@ namespace Physics_Simulation
 
             Gl.glPushMatrix();
 
-            // TODO: apply matrix transformations here!
+            Gl.glTranslated(_transform.translation.x, _transform.translation.y, _transform.translation.z);
+
+            Gl.glRotated(_transform.rotation.ox, 1, 0, 0);
+            Gl.glRotated(_transform.rotation.oy, 0, 1, 0);
+            Gl.glRotated(_transform.rotation.oz, 0, 0, 1);
+
+            Gl.glScaled(_transform.scale.x, _transform.scale.y, _transform.scale.z );
 
             Gl.glBegin(Gl.GL_TRIANGLES);
     
@@ -98,6 +140,24 @@ namespace Physics_Simulation
             Gl.glEnd();
 
             Gl.glPopMatrix();
+        }
+
+        public void translate(double x, double y, double z)
+        {
+            _transform.translation.x = x; _transform.translation.y = y; _transform.translation.z = z;
+        }
+
+        public void rotate(double x_angle, double y_angle, double z_angle)
+        {
+            x_angle = ExtendedMath.radiansToDegrees(x_angle);
+            y_angle = ExtendedMath.radiansToDegrees(y_angle);
+            z_angle = ExtendedMath.radiansToDegrees(z_angle);
+            _transform.rotation.ox = x_angle; _transform.rotation.oy = y_angle; _transform.rotation.oz = z_angle;
+        }
+
+        public void scale(double x, double y, double z)
+        {
+            _transform.scale.x = x; _transform.scale.y = y; _transform.scale.z = z;
         }
 
         #endregion

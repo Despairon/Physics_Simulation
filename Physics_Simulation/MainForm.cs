@@ -23,7 +23,6 @@ namespace Physics_Simulation
                 Render.userConfiguration.backgroundColor        = Color.Gray;
                 Render.userConfiguration.backgroundCubemapImage = "Textures/Cubemap";
                 Render.userConfiguration.cameraSpeed            = 1;
-                this.Move                                      += new EventHandler(Render.onWindowMove);
             }
             else
                 MessageBox.Show("already initialized");
