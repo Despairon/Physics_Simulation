@@ -23,9 +23,77 @@ namespace Physics_Simulation
                 Render.userConfiguration.backgroundColor        = Color.Gray;
                 Render.userConfiguration.backgroundCubemapImage = "Textures/Cubemap";
                 Render.userConfiguration.cameraSpeed            = 1;
+                this.Move                                      += new EventHandler(Render.onWindowMove);
             }
             else
                 MessageBox.Show("already initialized");
+
+            /*************************TODO: START TEST*******************************/
+            System.Collections.Generic.List<Triangle> triangles = new System.Collections.Generic.List<Triangle>();
+
+            triangles.Add
+            (
+                new Triangle
+                (
+                    new Vector3( 0,  0, 0),
+                    new Vector3(-1, -1, 1),
+                    new Vector3(-1, -1,-1)
+                )
+            );
+
+            triangles.Add
+            (
+                new Triangle
+                (
+                    new Vector3( 0,  0,  0),
+                    new Vector3(-1, -1, -1),
+                    new Vector3( 1, -1, -1)
+                )
+            );
+
+            triangles.Add
+            (
+                new Triangle
+                (
+                    new Vector3(0,  0,  0),
+                    new Vector3(1, -1, -1),
+                    new Vector3(1, -1,  1)
+                )
+            );
+
+            triangles.Add
+            (
+                new Triangle
+                (
+                    new Vector3( 0,  0, 0),
+                    new Vector3(-1, -1, 1),
+                    new Vector3( 1, -1, 1)
+                )
+            );
+
+            triangles.Add
+            (
+                new Triangle
+                (
+                    new Vector3(-1, -1,  1),
+                    new Vector3( 1, -1, -1),
+                    new Vector3( 1, -1,  1)
+                )
+            );
+
+            triangles.Add
+            (
+                new Triangle
+                (
+                    new Vector3( 1, -1, -1),
+                    new Vector3(-1, -1, -1),
+                    new Vector3(-1, -1,  1)
+                )
+            );
+
+            RenderObject obj = new RenderObject(triangles,Color.Aquamarine);
+            Render.instantiateObject(obj);
+            /**********************END TEST***********************/
         }
     }
 }

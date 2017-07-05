@@ -14,6 +14,7 @@ namespace Physics_Simulation
         private Vector3   eye_position;
         private Vector3   lookAt_position;
         private Vector3   up_position;
+
         private Rectangle cameraWindow;
 
         private Timer     movingTimer;
@@ -53,7 +54,7 @@ namespace Physics_Simulation
         {
             Point     cursorPos = screenCursorPosToWindow();
             Rectangle borders   = screenCameraWindowToLocal();
-            
+
             switch (mouseEvent)
             {
                 case MouseEventType.ENTER:
@@ -68,11 +69,8 @@ namespace Physics_Simulation
 
                     double alpha = mapCursorCoordsToAngle(cursorPos.X, borders.Right, Math.PI * 2);
                     double beta  = mapCursorCoordsToAngle(cursorPos.Y, borders.Bottom, Math.PI);
-
-                    //lookAt_position = ExtendedMath.rotated_vector(lookAt_position, eye_position, alpha, beta);
-                    // TODO: fixme!!!
-
-                    lookAt_position.rotate(alpha, beta, alpha);
+                    // TODO: do something with this
+                    lookAt_position = ExtendedMath.rotated_vector(lookAt_position, eye_position, alpha, beta);
 
                     break;
                 default : break;
@@ -157,8 +155,9 @@ namespace Physics_Simulation
         }
 
         private void cameraMove(object sender, EventArgs args)
-        {                 
-            Vector3 direction = ExtendedMath.translated_vector(eye_position, lookAt_position, Render.userConfiguration.cameraSpeed + 1);
+        {
+            var direction = eye_position;
+            direction.translateByDirection(lookAt_position, Render.userConfiguration.cameraSpeed+(lookAt_position-eye_position).getLength());
 
             foreach (var state in movingStateMap.FindAll(state => state.isMoving))
             {
@@ -166,42 +165,40 @@ namespace Physics_Simulation
                 switch (state.direction)
                 {
                     case Direction.FORWARD:
-                        direction = ExtendedMath.translated_vector(eye_position, lookAt_position, Render.userConfiguration.cameraSpeed + 1);
                         break;
                     case Direction.BACKWARD:
-                        direction *= ExtendedMath.rotated_vector(direction, eye_position, 180, 0);
+                        direction.rotate(0, Math.PI, 0);
                         break;
                     case Direction.LEFT:
-                        direction *= ExtendedMath.rotated_vector(direction, eye_position, -90, 0);
+                        direction.rotate(0, Math.PI / 2.0f, 0);
                         break;
                     case Direction.RIGHT:
-                        direction *= ExtendedMath.rotated_vector(direction, eye_position, 90, 0);
+                        direction.rotate(0, Math.PI / -2.0f, 0);
                         break;
 
                     default:
                         break;
                 }
 
-                double speed    = Render.userConfiguration.cameraSpeed / (double)Render.userConfiguration.FPS;
-                eye_position    = ExtendedMath.translated_vector(eye_position,    direction, speed);
-                lookAt_position = ExtendedMath.translated_vector(lookAt_position, direction, speed);
+                double speed = Render.userConfiguration.cameraSpeed / (double)Render.userConfiguration.FPS;
+                eye_position.translateByDirection(direction, speed);
+                lookAt_position.translateByDirection(direction, speed);
             }
 
             Render.userConfiguration.message =  "eye: x:"       + eye_position.x.ToString()    + " y:" + eye_position.y.ToString()    + " z:" + eye_position.z.ToString()    + "\n";
             Render.userConfiguration.message += "lookAt: x:"    + lookAt_position.x.ToString() + " y:" + lookAt_position.y.ToString() + " z:" + lookAt_position.z.ToString() + "\n";
             Render.userConfiguration.message += "Direction: x:" + direction.x.ToString()       + " y:" + direction.y.ToString()       + " z:" + direction.z.ToString();
+            Render.userConfiguration.message += "\nLength: " + (lookAt_position - eye_position).getLength().ToString();
         }
 
         #endregion
 
         #region public_members
 
-        public Camera(Rectangle cameraWindow)
+        public Camera()
         {
-            this.cameraWindow = cameraWindow;
-
             eye_position    = new Vector3(0,0,5);
-            lookAt_position = new Vector3(0,0,0);
+            lookAt_position = new Vector3(0,0,4);
             up_position     = new Vector3(0,1,0);
 
             attachInput();
@@ -219,6 +216,11 @@ namespace Physics_Simulation
         public Vector3 getPosition()
         {
             return eye_position;
+        }
+
+        public void changeWindowPosition(Rectangle newPosition)
+        {
+            cameraWindow = newPosition;
         }
 
         #endregion

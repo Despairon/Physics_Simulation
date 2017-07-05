@@ -94,7 +94,7 @@ namespace Physics_Simulation
             {
                 { 1, 0, 0, x },
                 { 0, 1, 0, y },
-                { 0, 0, 0, z },
+                { 0, 0, 1, z },
                 { 0, 0, 0, 1 }
             };
 
@@ -141,12 +141,12 @@ namespace Physics_Simulation
             Matrix4 rotationMatOY = new Matrix4(rotationOY);
             Matrix4 rotationMatOZ = new Matrix4(rotationOZ);
 
+            var resultMatrix = rotationMatOX * rotationMatOY * rotationMatOZ;
+
             Vector4 resultVector = new Vector4(this.x, this.y, this.z, 1);
 
-            resultVector *= rotationMatOX;
-            resultVector *= rotationMatOY;
-            resultVector *= rotationMatOZ;
-            // TODO: complete implementation. Looks like we should use LOCAL COORDS in calculations here!!!
+            resultVector *= resultMatrix;
+
             this = resultVector.vector3;
         }
 
@@ -167,6 +167,13 @@ namespace Physics_Simulation
             resultVector *= scaleMatrix;
 
             this = resultVector.vector3;
+        }
+
+        public void translateByDirection(Vector3 direction, double distance)
+        {
+            x = x + ((direction.x - x) * distance);
+            y = y + ((direction.y - y) * distance);
+            z = z + ((direction.z - z) * distance);
         }
 
         public double getLength()
@@ -267,6 +274,23 @@ namespace Physics_Simulation
         {
             return (right * left);
         }
+
+        public static Matrix4 identity
+        {
+            get
+            {
+                return new Matrix4
+                (
+                    new double[4,4]
+                    {
+                        { 1, 0, 0, 0 },
+                        { 0, 1, 0, 0 },
+                        { 0, 0, 1, 0 },
+                        { 0, 0, 0, 1 }
+                    }
+                );
+            }
+        }
     }
 
     public static class ExtendedMath
@@ -279,15 +303,6 @@ namespace Physics_Simulation
         public static double radiansToDegrees(double radians)
         {
             return ( (radians / Math.PI * 2.0f) * 360.0f );
-        }
-
-        public static Vector3 translated_vector(Vector3 vector, Vector3 direction, double distance)
-        {
-            vector.x = vector.x + ( (direction.x - vector.x) * distance);
-            vector.y = vector.y + ( (direction.y - vector.y) * distance);
-            vector.z = vector.z + ( (direction.z - vector.z) * distance);
-
-            return vector;
         }
 
         public static Vector3 rotated_vector(Vector3 vector, Vector3 vectorStart, double xAxisAngle, double yAxisAngle)

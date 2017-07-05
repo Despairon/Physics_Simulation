@@ -31,12 +31,15 @@ namespace Physics_Simulation
         private static Camera              camera;
         private static ShaderManager       shaderManager;
         private static Cubemap             cubemap;
+        private static List<RenderObject>  objects;
 
         private static void initializeComponents()
         {
             graphics      = null;
             drawingTimer  = new Timer();
             initialized   = false;
+            camera        = new Camera();
+            objects       = new List<RenderObject>();
         }
 
         private static bool initializeShaders()
@@ -323,10 +326,9 @@ namespace Physics_Simulation
                 Gl.glVertexAttribPointer(color_attribute, 3, Gl.GL_FLOAT, Gl.GL_FALSE, 0, IntPtr.Zero);
 
                 Gl.glBindBuffer(Gl.GL_ELEMENT_ARRAY_BUFFER, index_buffer);
-
-                setColor(Color.Blue);
-                Glut.glutSolidSphere(0.3, 100, 100); // TODO: delete and uncomment below
-                //Gl.glDrawElements(Gl.GL_TRIANGLES, indices.Length, Gl.GL_UNSIGNED_INT, IntPtr.Zero);
+                
+                // TODO: delete and uncomment below
+                // Gl.glDrawElements(Gl.GL_TRIANGLES, indices.Length, Gl.GL_UNSIGNED_INT, IntPtr.Zero);
 
                 Gl.glDisableVertexAttribArray(coords_attribute);
 
@@ -343,14 +345,14 @@ namespace Physics_Simulation
                     Gl.glUseProgram(0);
 
             }
-            
+
             /****************************END TEST*************************************/
 
-            //foreach (var obj in physic_objects)
-            //    obj.calculate_physics();
+            //foreach (var obj in objects.FindAll(_obj => _obj is PhysicalObject))
+            //    (obj as PhysicalObject).calculate_physics();
 
-            //foreach (var obj in physic_objects)
-            //    obj.draw();
+            foreach (var obj in objects)
+                obj.draw();
 
             Gl.glFlush();
 
@@ -474,7 +476,7 @@ namespace Physics_Simulation
                     graphics = canvas;
                     graphics.InitializeContexts();
 
-                    camera = new Camera(new Rectangle(graphics.PointToScreen(Point.Empty), graphics.Size));
+                    camera.changeWindowPosition(new Rectangle(graphics.PointToScreen(Point.Empty), graphics.Size));
 
                     Glut.glutInit();
                     Glut.glutInitDisplayMode(Glut.GLUT_RGB | Glut.GLUT_DOUBLE | Glut.GLUT_DEPTH);
@@ -522,6 +524,16 @@ namespace Physics_Simulation
             Glu.gluPerspective(45, (float)graphics.Width / (float)graphics.Height, 0.1, 20000);
             Gl.glMatrixMode(Gl.GL_MODELVIEW);
             Gl.glLoadIdentity();
+        }
+
+        public static void onWindowMove(object sender, EventArgs args)
+        {
+            camera.changeWindowPosition(new Rectangle(graphics.PointToScreen(Point.Empty), graphics.Size));
+        }
+
+        public static void instantiateObject(RenderObject obj)
+        {
+            objects.Add(obj);
         }
 
         #endregion
