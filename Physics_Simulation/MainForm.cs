@@ -27,73 +27,7 @@ namespace Physics_Simulation
             else
                 MessageBox.Show("already initialized");
 
-            /*************************TODO: START TEST*******************************/
-            System.Collections.Generic.List<Triangle> triangles = new System.Collections.Generic.List<Triangle>();
-
-            triangles.Add
-            (
-                new Triangle
-                (
-                    new Vector3( 0,  0, 0),
-                    new Vector3(-1, -1, 1),
-                    new Vector3(-1, -1,-1)
-                )
-            );
-
-            triangles.Add
-            (
-                new Triangle
-                (
-                    new Vector3( 0,  0,  0),
-                    new Vector3(-1, -1, -1),
-                    new Vector3( 1, -1, -1)
-                )
-            );
-
-            triangles.Add
-            (
-                new Triangle
-                (
-                    new Vector3(0,  0,  0),
-                    new Vector3(1, -1, -1),
-                    new Vector3(1, -1,  1)
-                )
-            );
-
-            triangles.Add
-            (
-                new Triangle
-                (
-                    new Vector3( 0,  0, 0),
-                    new Vector3(-1, -1, 1),
-                    new Vector3( 1, -1, 1)
-                )
-            );
-
-            triangles.Add
-            (
-                new Triangle
-                (
-                    new Vector3(-1, -1,  1),
-                    new Vector3( 1, -1, -1),
-                    new Vector3( 1, -1,  1)
-                )
-            );
-
-            triangles.Add
-            (
-                new Triangle
-                (
-                    new Vector3( 1, -1, -1),
-                    new Vector3(-1, -1, -1),
-                    new Vector3(-1, -1,  1)
-                )
-            );
-
-            RenderObject obj = new RenderObject("triangle", triangles, Color.Aquamarine);
-            Render.instantiateObject(obj);
-            
-            /**********************END TEST***********************/
+            Render.test(0, 0, 4, 0, 0, 0, 1, 1, 1); // TODO: delete when done
         }
     }
 }

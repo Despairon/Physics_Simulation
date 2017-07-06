@@ -11,9 +11,10 @@ namespace Physics_Simulation
     {
         #region private_members
 
-        private Vector3   eye_position;
-        private Vector3   lookAt_position;
-        private Vector3   up_position;
+        private static readonly Vector3 EYE_ORIGIN = new Vector3(0,0,0);
+
+        private double  x_rotation, y_rotation;
+        private Vector3 position;
 
         private Rectangle cameraWindow;
 
@@ -67,11 +68,17 @@ namespace Physics_Simulation
                 case MouseEventType.MOVE:
                     mouseReverse(cursorPos, borders);
 
-                    double alpha = mapCursorCoordsToAngle(cursorPos.X, borders.Right, Math.PI * 2);
-                    double beta  = mapCursorCoordsToAngle(cursorPos.Y, borders.Bottom, Math.PI);
-                    // TODO: do something with this
-                    lookAt_position = ExtendedMath.rotated_vector(lookAt_position, eye_position, alpha, beta);
-                    
+                    const double HALF_CIRCLE = 180;
+                    const double FULL_CIRCLE = HALF_CIRCLE * 2;
+
+                    x_rotation = mapCursorCoordsToAngle(cursorPos.Y, borders.Bottom, HALF_CIRCLE) - (HALF_CIRCLE / 2);
+                    y_rotation = mapCursorCoordsToAngle(cursorPos.X, borders.Right, FULL_CIRCLE);
+
+                    /* TODO: something with this
+                    alpha = mapCursorCoordsToAngle(cursorPos.X, borders.Right, Math.PI * 2);
+                    beta = mapCursorCoordsToAngle(cursorPos.Y, borders.Bottom, Math.PI);
+                    Vector3 lookAt = ExtendedMath.getPointOnCircle(position, 1, alpha, beta);
+                     */
                     break;
                 default : break;
             }          
@@ -85,7 +92,6 @@ namespace Physics_Simulation
 
                 if (state != null)
                     state.changeState(true);
-                
             }
 
             if (keyEventType == KeyEventType.UP)
@@ -94,7 +100,6 @@ namespace Physics_Simulation
 
                 if (state != null)
                     state.changeState(false);
-
             }       
         }
 
@@ -162,39 +167,35 @@ namespace Physics_Simulation
 
         private void cameraMove(object sender, EventArgs args)
         {
-            var direction = eye_position;
-            direction.translateByDirection(lookAt_position, Render.userConfiguration.cameraSpeed+(lookAt_position-eye_position).getLength());
-
             foreach (var state in movingStateMap.FindAll(state => state.isMoving))
             {
-                // TODO: implementation is INCOMPLETE and nearly WRONG!!! COMPLETE IT!!!
+                // TODO: implement moving here !!!
+
+                double speed = Render.userConfiguration.cameraSpeed / (double)Render.userConfiguration.FPS;
+
                 switch (state.direction)
                 {
                     case Direction.FORWARD:
+                        position.z += speed;
                         break;
                     case Direction.BACKWARD:
-                        direction.rotate(0, Math.PI, 0);
+                        position.z -= speed;
                         break;
                     case Direction.LEFT:
-                        direction.rotate(0, Math.PI / 2.0f, 0);
+                        position.x += speed;
                         break;
                     case Direction.RIGHT:
-                        direction.rotate(0, Math.PI / -2.0f, 0);
+                        position.x -= speed;
                         break;
 
                     default:
                         break;
                 }
 
-                double speed = Render.userConfiguration.cameraSpeed / (double)Render.userConfiguration.FPS;
-                eye_position.translateByDirection(direction, speed);
-                lookAt_position.translateByDirection(direction, speed);
+                
             }
 
-            Render.userConfiguration.message = "eye: x:" + eye_position.x.ToString() + " y:" + eye_position.y.ToString() + " z:" + eye_position.z.ToString() + "\n";
-            Render.userConfiguration.message += "lookAt: x:" + lookAt_position.x.ToString() + " y:" + lookAt_position.y.ToString() + " z:" + lookAt_position.z.ToString() + "\n";
-            Render.userConfiguration.message += "Direction: x:" + direction.x.ToString() + " y:" + direction.y.ToString() + " z:" + direction.z.ToString();
-            Render.userConfiguration.message += "\nLength: " + (lookAt_position - eye_position).getLength().ToString();
+            Render.userConfiguration.message = "position: x:" + position.x.ToString() + " y:" + position.y.ToString() + " z:" + position.z.ToString() + "\n";
         }
 
         #endregion
@@ -206,25 +207,24 @@ namespace Physics_Simulation
             // TODO: need to fix this on window move
             cameraWindow = window;
 
-            eye_position    = new Vector3(0,0,5);
-            lookAt_position = new Vector3(0,0,4);
-            up_position     = new Vector3(0,1,0);
-
             attachInput();
+
+            x_rotation = 0;
+            y_rotation = 0;
+
+            position = EYE_ORIGIN;
 
             initMovingTimer();
         }
 
         public void renderCamera()
-        {               
-            Glu.gluLookAt(eye_position.x,    eye_position.y,    eye_position.z,
-                          lookAt_position.x, lookAt_position.y, lookAt_position.z,
-                          up_position.x,     up_position.y,     up_position.z);
-        }
-
-        public Vector3 getPosition()
         {
-            return eye_position;
+            // TODO: do something about it
+
+            Gl.glRotated(x_rotation, 1, 0, 0);
+            Gl.glRotated(y_rotation, 0, 1, 0);
+
+            Gl.glTranslated(position.x, position.y, position.z);
         }
 
         #endregion

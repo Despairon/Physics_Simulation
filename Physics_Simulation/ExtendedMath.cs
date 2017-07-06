@@ -274,13 +274,15 @@ namespace Physics_Simulation
             return ( (radians / (Math.PI * 2.0f) ) * 360.0f );
         }
 
-        public static Vector3 rotated_vector(Vector3 vector, Vector3 vectorStart, double xAxisAngle, double yAxisAngle)
+        public static Vector3 getPointOnCircle(Vector3 center, double radius, double x_angle, double y_angle)
         {
-            vector.x = vectorStart.x + Math.Cos(xAxisAngle);
-            vector.y = vectorStart.y + Math.Cos(yAxisAngle);
-            vector.z = vectorStart.z + Math.Sin(xAxisAngle);
+            Vector3 resultVector = new Vector3();
 
-            return vector;
+            resultVector.x = center.x + (radius * Math.Cos(x_angle));
+            resultVector.y = center.y + (radius * Math.Cos(y_angle));
+            resultVector.z = center.z + (radius * Math.Sin(x_angle));
+
+            return resultVector;
         }
 
         public static Matrix4 translation_matrix(double x, double y, double z)

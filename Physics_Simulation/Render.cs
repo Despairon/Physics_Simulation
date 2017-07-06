@@ -93,11 +93,7 @@ namespace Physics_Simulation
 
             Gl.glPushMatrix();
 
-            Vector3 cameraPos = camera.getPosition();
-
-            Gl.glTranslated(cameraPos.x, cameraPos.y, cameraPos.z);
-
-            Gl.glScaled(1000, 1000, 1000);
+            Gl.glScaled(3000, 3000, 3000);
 
             switch (direction)
             {
@@ -541,6 +537,87 @@ namespace Physics_Simulation
         {
             if (objects.Contains(obj))
                 objects.Remove(obj);
+        }
+
+        public static void test(double x, double y, double z, double rx, double ry, double rz, double sx, double sy, double sz)
+        {
+            /*************************TODO: START TEST*******************************/
+            System.Collections.Generic.List<Triangle> triangles = new System.Collections.Generic.List<Triangle>();
+
+            triangles.Add
+            (
+                new Triangle
+                (
+                    new Vector3(0, 0, 0),
+                    new Vector3(-1, -1, 1),
+                    new Vector3(-1, -1, -1)
+                )
+            );
+
+            triangles.Add
+            (
+                new Triangle
+                (
+                    new Vector3(0, 0, 0),
+                    new Vector3(-1, -1, -1),
+                    new Vector3(1, -1, -1)
+                )
+            );
+
+            triangles.Add
+            (
+                new Triangle
+                (
+                    new Vector3(0, 0, 0),
+                    new Vector3(1, -1, -1),
+                    new Vector3(1, -1, 1)
+                )
+            );
+
+            triangles.Add
+            (
+                new Triangle
+                (
+                    new Vector3(0, 0, 0),
+                    new Vector3(-1, -1, 1),
+                    new Vector3(1, -1, 1)
+                )
+            );
+
+            triangles.Add
+            (
+                new Triangle
+                (
+                    new Vector3(-1, -1, 1),
+                    new Vector3(1, -1, -1),
+                    new Vector3(1, -1, 1)
+                )
+            );
+
+            triangles.Add
+            (
+                new Triangle
+                (
+                    new Vector3(1, -1, -1),
+                    new Vector3(-1, -1, -1),
+                    new Vector3(-1, -1, 1)
+                )
+            );
+
+            Random rnd = new Random(DateTime.Now.Millisecond);
+            int r = (int)(rnd.NextDouble() * 0xFF);
+            int g = (int)(rnd.NextDouble() * 0xFF);
+            int b = (int)(rnd.NextDouble() * 0xFF);
+
+            Color c = Color.FromArgb(r,g,b);
+
+            RenderObject obj = new RenderObject("triangle", triangles, c);
+            obj.scale(sx, sy, sz);
+            obj.translate(x,y,z);
+            obj.rotate(rx, ry, rz);
+            Render.instantiateObject(obj);
+
+            /**********************END TEST***********************/
         }
 
         #endregion
