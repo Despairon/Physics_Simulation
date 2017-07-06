@@ -351,10 +351,8 @@ namespace Physics_Simulation
             //    (obj as PhysicalObject).calculate_physics();
 
             foreach (var obj in objects)
-            {
                 obj.draw();
-            }
-
+            
             Gl.glFlush();
 
             graphics.Invalidate();
@@ -478,7 +476,7 @@ namespace Physics_Simulation
                     graphics.InitializeContexts();
 
                     camera = new Camera(new Rectangle(graphics.PointToScreen(Point.Empty), graphics.Size));
-
+                    
                     Glut.glutInit();
                     Glut.glutInitDisplayMode(Glut.GLUT_RGB | Glut.GLUT_DOUBLE | Glut.GLUT_DEPTH);
                     Il.ilInit();
@@ -524,7 +522,7 @@ namespace Physics_Simulation
             Gl.glViewport(0, 0, graphics.Width, graphics.Height);
             Gl.glMatrixMode(Gl.GL_PROJECTION);
             Gl.glLoadIdentity();
-            Glu.gluPerspective(45, (float)graphics.Width / (float)graphics.Height, 0.1, 20000);
+            Glu.gluPerspective(60, (float)graphics.Width / (float)graphics.Height, 0.1, 20000);
             Gl.glMatrixMode(Gl.GL_MODELVIEW);
             Gl.glLoadIdentity();
         }
@@ -532,6 +530,17 @@ namespace Physics_Simulation
         public static void instantiateObject(RenderObject obj)
         {
             objects.Add(obj);
+        }
+
+        public static RenderObject getObjectByName(string name)
+        {
+            return objects.Find(obj => obj.name == name);
+        }
+
+        public static void deleteObject(RenderObject obj)
+        {
+            if (objects.Contains(obj))
+                objects.Remove(obj);
         }
 
         #endregion

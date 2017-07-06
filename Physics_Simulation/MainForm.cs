@@ -90,8 +90,9 @@ namespace Physics_Simulation
                 )
             );
 
-            RenderObject obj = new RenderObject(triangles,Color.Aquamarine);
+            RenderObject obj = new RenderObject("triangle", triangles, Color.Aquamarine);
             Render.instantiateObject(obj);
+            
             /**********************END TEST***********************/
         }
     }

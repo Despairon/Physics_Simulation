@@ -71,7 +71,7 @@ namespace Physics_Simulation
                     double beta  = mapCursorCoordsToAngle(cursorPos.Y, borders.Bottom, Math.PI);
                     // TODO: do something with this
                     lookAt_position = ExtendedMath.rotated_vector(lookAt_position, eye_position, alpha, beta);
-
+                    
                     break;
                 default : break;
             }          
@@ -103,8 +103,14 @@ namespace Physics_Simulation
             switch (keyEventType)
             {
                 case KeyEventType.PRESSED:
-                    if (key_args.KeyChar == (char)Keys.Enter)
-                        Render.changeWindowState();
+                    switch (key_args.KeyChar)
+                    {
+                        case (char)Keys.Enter:
+                            Render.changeWindowState();
+                            break;
+                        default:
+                            break;
+                    }
                     break;
                 default:
                     break;
@@ -197,6 +203,7 @@ namespace Physics_Simulation
 
         public Camera(Rectangle window)
         {
+            // TODO: need to fix this on window move
             cameraWindow = window;
 
             eye_position    = new Vector3(0,0,5);

@@ -63,7 +63,8 @@ namespace Physics_Simulation
         private List<Vector3>  _vertices;
         private Color          _color;
         private Transform      _transform;
-        // private List<Triangle> _indices; // TODO: will need in shaders
+        private string         _name;
+        // private List<Triangle> _indices; // TODO: will be needed in shaders
 
         #endregion
 
@@ -87,7 +88,13 @@ namespace Physics_Simulation
             private set { _color = value; }
         }
 
-        public RenderObject(List<Vector3> vertices, Color color)
+        public string name
+        {
+            get         { return _name; }
+            private set { _name = value; }
+        }
+
+        public RenderObject(string name, List<Vector3> vertices, Color color)
         {
             this.vertices = new List<Vector3>();
 
@@ -97,9 +104,11 @@ namespace Physics_Simulation
             this.color = color;
 
             _transform = new Transform(0);
+
+            this.name = name;
         }
 
-        public RenderObject(List<Triangle> triangles, Color color)
+        public RenderObject(string name, List<Triangle> triangles, Color color)
         {
             vertices = new List<Vector3>();
 
@@ -114,6 +123,8 @@ namespace Physics_Simulation
             this.color = color;
 
             _transform = new Transform(0);
+
+            this.name = name;
         }
 
         public void draw()

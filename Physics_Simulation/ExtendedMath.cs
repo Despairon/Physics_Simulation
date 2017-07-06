@@ -229,13 +229,18 @@ namespace Physics_Simulation
 
         public void transpose()
         {
-            // TODO: it doesn';t work somewhy
-            Matrix4 copyMat = new Matrix4(values);
+            double[,] vals = new double[4, 4]
+            {
+                { this[0, 0], this[1, 0], this[2, 0], this[3, 0] },
+                { this[0, 1], this[1, 1], this[2, 1], this[3, 1] },
+                { this[0, 2], this[1, 2], this[2, 2], this[3, 2] },
+                { this[0, 3], this[1, 3], this[2, 3], this[3, 3] }
+            };
 
             for (int x = 0; x < 4; x++)
                 for (int y = 0; y < 4; y++)
                 {
-                    this[x, y] = copyMat[y, x];
+                    this[x, y] = vals[x, y];
                 }
         }
 
@@ -281,11 +286,11 @@ namespace Physics_Simulation
         public static Matrix4 translation_matrix(double x, double y, double z)
         {
             double[,] translation = new double[4, 4]
-            { // TODO: this is not right, but it works, dunno why.
-                { 1, 0, 0, 0 },
-                { 0, 1, 0, 0 },
-                { 0, 0, 1, 0 },
-                { x, y, z, 1 }
+            {
+                { 1, 0, 0, x },
+                { 0, 1, 0, y },
+                { 0, 0, 1, z },
+                { 0, 0, 0, 1 }
             };
 
             return new Matrix4(translation);
