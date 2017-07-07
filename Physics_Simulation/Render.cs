@@ -80,7 +80,7 @@ namespace Physics_Simulation
         {
             string textures_directory  = userConfiguration.backgroundCubemapImage + "/";
 
-            string cubemap_face = (textures_directory + cubemap_face_name + ".bmp");
+            string cubemap_face = (textures_directory + cubemap_face_name + ".jpg");
 
             return loadTexture(cubemap_face);
         }
@@ -484,7 +484,7 @@ namespace Physics_Simulation
                     Gl.glViewport(0, 0, graphics.Width, graphics.Height);
                     Gl.glMatrixMode(Gl.GL_PROJECTION);
                     Gl.glLoadIdentity();
-                    Glu.gluPerspective(45, (float)graphics.Width / (float)graphics.Height, 0.1, 10000);
+                    Glu.gluPerspective(60, (float)graphics.Width / (float)graphics.Height, 0.1, 10000);
                     Gl.glMatrixMode(Gl.GL_MODELVIEW);
                     Gl.glLoadIdentity();
                     Gl.glEnable(Gl.GL_DEPTH_TEST);
@@ -619,7 +619,7 @@ namespace Physics_Simulation
             obj.scale(sx, sy, sz);
             obj.translate(x,y,z);
             obj.rotate(rx, ry, rz);
-            Render.instantiateObject(obj);
+            instantiateObject(obj);
 
             /**********************END TEST***********************/
         }

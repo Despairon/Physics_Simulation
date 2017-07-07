@@ -1,0 +1,17 @@
+c:\users\mrybalsky\documents\visual studio 2015\Projects\Physics_Simulation\Physics_Simulation\bin\Debug\Physics_Simulation.exe.config
+c:\users\mrybalsky\documents\visual studio 2015\Projects\Physics_Simulation\Physics_Simulation\obj\Debug\Physics_Simulation.csprojResolveAssemblyReference.cache
+c:\users\mrybalsky\documents\visual studio 2015\Projects\Physics_Simulation\Physics_Simulation\obj\Debug\Physics_Simulation.MainForm.resources
+c:\users\mrybalsky\documents\visual studio 2015\Projects\Physics_Simulation\Physics_Simulation\obj\Debug\Physics_Simulation.Properties.Resources.resources
+c:\users\mrybalsky\documents\visual studio 2015\Projects\Physics_Simulation\Physics_Simulation\obj\Debug\Physics_Simulation.csproj.GenerateResource.Cache
+c:\users\mrybalsky\documents\visual studio 2015\Projects\Physics_Simulation\Physics_Simulation\bin\Debug\Physics_Simulation.exe
+c:\users\mrybalsky\documents\visual studio 2015\Projects\Physics_Simulation\Physics_Simulation\bin\Debug\Physics_Simulation.pdb
+c:\users\mrybalsky\documents\visual studio 2015\Projects\Physics_Simulation\Physics_Simulation\bin\Debug\Tao.DevIl.dll
+c:\users\mrybalsky\documents\visual studio 2015\Projects\Physics_Simulation\Physics_Simulation\bin\Debug\Tao.FreeGlut.dll
+c:\users\mrybalsky\documents\visual studio 2015\Projects\Physics_Simulation\Physics_Simulation\bin\Debug\Tao.OpenGl.dll
+c:\users\mrybalsky\documents\visual studio 2015\Projects\Physics_Simulation\Physics_Simulation\bin\Debug\Tao.Platform.Windows.dll
+c:\users\mrybalsky\documents\visual studio 2015\Projects\Physics_Simulation\Physics_Simulation\bin\Debug\Tao.DevIl.xml
+c:\users\mrybalsky\documents\visual studio 2015\Projects\Physics_Simulation\Physics_Simulation\bin\Debug\Tao.FreeGlut.xml
+c:\users\mrybalsky\documents\visual studio 2015\Projects\Physics_Simulation\Physics_Simulation\bin\Debug\Tao.OpenGl.xml
+c:\users\mrybalsky\documents\visual studio 2015\Projects\Physics_Simulation\Physics_Simulation\bin\Debug\Tao.Platform.Windows.xml
+c:\users\mrybalsky\documents\visual studio 2015\Projects\Physics_Simulation\Physics_Simulation\obj\Debug\Physics_Simulation.exe
+c:\users\mrybalsky\documents\visual studio 2015\Projects\Physics_Simulation\Physics_Simulation\obj\Debug\Physics_Simulation.pdb
