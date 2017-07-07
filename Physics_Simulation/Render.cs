@@ -93,6 +93,10 @@ namespace Physics_Simulation
 
             Gl.glPushMatrix();
 
+            var cameraPos = camera.getPosition();
+
+            Gl.glTranslated(cameraPos.x, cameraPos.y, cameraPos.z);
+
             Gl.glScaled(3000, 3000, 3000);
 
             switch (direction)

@@ -231,6 +231,11 @@ namespace Physics_Simulation
                           up.x, up.y, up.z);
         }
 
+        public Vector3 getPosition()
+        {
+            return position;
+        }
+
         #endregion
     }
 }
