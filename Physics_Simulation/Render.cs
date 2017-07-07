@@ -80,7 +80,7 @@ namespace Physics_Simulation
         {
             string textures_directory  = userConfiguration.backgroundCubemapImage + "/";
 
-            string cubemap_face = (textures_directory + cubemap_face_name + ".jpg");
+            string cubemap_face = (textures_directory + cubemap_face_name + userConfiguration.backGroundImageFormat);
 
             return loadTexture(cubemap_face);
         }
@@ -372,6 +372,7 @@ namespace Physics_Simulation
             private int    _FPS;
             private Color  _backgroundColor;
             private string _backgroundCubemapImage;
+            private string _backGroundImageFormat;
             private string _message;
             private double _cameraSpeed;
 
@@ -383,7 +384,7 @@ namespace Physics_Simulation
             {
                 _FPS = 100;
 
-                _cameraSpeed = 1;
+                _cameraSpeed = 4;
 
                 _backgroundColor = Color.Gray;
                 float r = (float)_backgroundColor.R / 256;
@@ -391,17 +392,15 @@ namespace Physics_Simulation
                 float b = (float)_backgroundColor.B / 256;
                 Gl.glClearColor(r, g, b, 1);
 
-                _backgroundCubemapImage = "Textures/Cubemap";
+                _backgroundCubemapImage = "Textures/Cubemap/earth";
+                _backGroundImageFormat  = ".jpg";
 
                 _message = "FPS: " + FPS.ToString();
             }
 
             public Color backgroundColor
             {
-                get
-                {
-                    return _backgroundColor;
-                }
+                get { return _backgroundColor; }
                 set
                 {
                     float r = (float)value.R / 256;
@@ -414,10 +413,7 @@ namespace Physics_Simulation
 
             public int FPS
             {
-                get
-                {
-                    return _FPS;
-                }
+                get { return _FPS; }
                 set
                 {
                     const int MILLISEC_IN_SEC = 1000;
@@ -428,36 +424,36 @@ namespace Physics_Simulation
 
             public string backgroundCubemapImage
             {
-                get
-                {
-                    return _backgroundCubemapImage;
-                }
+                get { return _backgroundCubemapImage; }
                 set
                 {
                     try
                     {
+                        _backgroundCubemapImage = value;
                         cubemap = new Cubemap(-1, -1, -1, -1, -1, -1);
                     }
                     catch (Exception)
                     {
                         
                     }
-
-                    _backgroundCubemapImage = value;
                 }
+            }
+
+            public string backGroundImageFormat
+            {
+                get { return _backGroundImageFormat;  }
+                set { _backGroundImageFormat = value; }
             }
 
             public string message
             {
                 get { return _message;  }
-
                 set { _message = value; }
             }
 
             public double cameraSpeed
             {
                 get { return _cameraSpeed;  }
-
                 set { _cameraSpeed = value; }
             }
 
