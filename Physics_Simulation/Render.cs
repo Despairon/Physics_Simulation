@@ -392,8 +392,9 @@ namespace Physics_Simulation
                 float b = (float)_backgroundColor.B / 256;
                 Gl.glClearColor(r, g, b, 1);
 
-                _backgroundCubemapImage = "Textures/Cubemap/earth";
                 _backGroundImageFormat  = ".jpg";
+                _backgroundCubemapImage = "Textures/Cubemap/earth";
+                
 
                 _message = "FPS: " + FPS.ToString();
             }
@@ -485,8 +486,6 @@ namespace Physics_Simulation
                     Gl.glLoadIdentity();
                     Gl.glEnable(Gl.GL_DEPTH_TEST);
                     Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);
-
-                    
 
                     userConfiguration.setDefaultConfiguration();
 
