@@ -26,7 +26,7 @@ namespace Physics_Simulation
                 Render.userConfiguration.cameraSpeed            = 4;
             }
             else
-                MessageBox.Show("already initialized");
+                MessageBox.Show("already initialized or error occured");
         }
     }
 }
