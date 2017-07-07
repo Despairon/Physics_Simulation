@@ -348,7 +348,8 @@ namespace Physics_Simulation
             /****************************END TEST*************************************/
 
             //foreach (var obj in objects.FindAll(_obj => _obj is PhysicalObject))
-            //    (obj as PhysicalObject).calculate_physics();
+            //    for (uint i = 0; i < userConfiguration.physicsIterations; i++)
+            //        (obj as PhysicalObject).calculate_physics();
 
             foreach (var obj in objects)
                 obj.draw();
@@ -375,6 +376,7 @@ namespace Physics_Simulation
             private string _backGroundImageFormat;
             private string _message;
             private double _cameraSpeed;
+            private uint  _physicsIterations;
 
             #endregion
 
@@ -456,6 +458,12 @@ namespace Physics_Simulation
             {
                 get { return _cameraSpeed;  }
                 set { _cameraSpeed = value; }
+            }
+
+            public uint physicsIterations
+            {
+                get { return _physicsIterations;  }
+                set { _physicsIterations = value; }
             }
 
             #endregion
