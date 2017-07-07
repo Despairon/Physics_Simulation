@@ -22,12 +22,10 @@ namespace Physics_Simulation
                 Render.userConfiguration.FPS                    = 100;
                 Render.userConfiguration.backgroundColor        = Color.Gray;
                 Render.userConfiguration.backgroundCubemapImage = "Textures/Cubemap";
-                Render.userConfiguration.cameraSpeed            = 1;
+                Render.userConfiguration.cameraSpeed            = 4;
             }
             else
                 MessageBox.Show("already initialized");
-
-            Render.test(0, 0, 4, 0, 0, 0, 1, 1, 1); // TODO: delete when done
         }
     }
 }

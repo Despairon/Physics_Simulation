@@ -10,11 +10,10 @@ namespace Physics_Simulation
     public class Camera
     {
         #region private_members
-
-        private static readonly Vector3 EYE_ORIGIN = new Vector3(0,0,0);
-
-        private double  x_rotation, y_rotation;
+       
         private Vector3 position;
+        private Vector3 lookAt;
+        private Vector3 up;
 
         private Rectangle cameraWindow;
 
@@ -45,10 +44,13 @@ namespace Physics_Simulation
 
         private readonly List<MovingStateMapItem> movingStateMap = new List<MovingStateMapItem>()
         {
-            new MovingStateMapItem( Direction.FORWARD,  Keys.W, false ),
-            new MovingStateMapItem( Direction.BACKWARD, Keys.S, false ),
-            new MovingStateMapItem( Direction.LEFT,     Keys.A, false ),
-            new MovingStateMapItem( Direction.RIGHT,    Keys.D, false )
+            new MovingStateMapItem( Direction.FORWARD,  Keys.W,          false ),
+            new MovingStateMapItem( Direction.BACKWARD, Keys.S,          false ),
+            new MovingStateMapItem( Direction.LEFT,     Keys.A,          false ),
+            new MovingStateMapItem( Direction.RIGHT,    Keys.D,          false ),
+            new MovingStateMapItem( Direction.UP,       Keys.Space,      false ),
+            new MovingStateMapItem( Direction.DOWN,     Keys.ControlKey, false ),
+            new MovingStateMapItem( Direction.NONE,     Keys.ShiftKey,   false)
         };
 
         private void mouseEvent(MouseEventType mouseEvent, MouseEventArgs mouseArgs)
@@ -68,17 +70,17 @@ namespace Physics_Simulation
                 case MouseEventType.MOVE:
                     mouseReverse(cursorPos, borders);
 
-                    const double HALF_CIRCLE = 180;
-                    const double FULL_CIRCLE = HALF_CIRCLE * 2;
+                    double x_rotation = -(mapCursorCoordsToAngle(cursorPos.Y, borders.Bottom, Math.PI) - (Math.PI/2));
+                    double y_rotation = mapCursorCoordsToAngle(cursorPos.X, borders.Right,  Math.PI * 2);
 
-                    x_rotation = mapCursorCoordsToAngle(cursorPos.Y, borders.Bottom, HALF_CIRCLE) - (HALF_CIRCLE / 2);
-                    y_rotation = mapCursorCoordsToAngle(cursorPos.X, borders.Right, FULL_CIRCLE);
+                    lookAt.x = Math.Cos(x_rotation) * Math.Cos(y_rotation);
+                    lookAt.y = Math.Sin(x_rotation);
+                    lookAt.z = Math.Cos(x_rotation) * Math.Sin(y_rotation);
+                    lookAt.normalize();
 
-                    /* TODO: something with this
-                    alpha = mapCursorCoordsToAngle(cursorPos.X, borders.Right, Math.PI * 2);
-                    beta = mapCursorCoordsToAngle(cursorPos.Y, borders.Bottom, Math.PI);
-                    Vector3 lookAt = ExtendedMath.getPointOnCircle(position, 1, alpha, beta);
-                     */
+                    break;
+                case MouseEventType.CLICK:
+                    Render.test(position.x + lookAt.x, position.y + lookAt.y, position.z + lookAt.z, 0,0,0, 0.3,0.3,0.3); // TODO: 4 fun, delete
                     break;
                 default : break;
             }          
@@ -169,30 +171,36 @@ namespace Physics_Simulation
         {
             foreach (var state in movingStateMap.FindAll(state => state.isMoving))
             {
-                // TODO: implement moving here !!!
-
                 double speed = Render.userConfiguration.cameraSpeed / (double)Render.userConfiguration.FPS;
 
                 switch (state.direction)
                 {
                     case Direction.FORWARD:
-                        position.z += speed;
+                        position += speed * lookAt;
                         break;
                     case Direction.BACKWARD:
-                        position.z -= speed;
+                        position -= speed * lookAt;
                         break;
                     case Direction.LEFT:
-                        position.x += speed;
+                        var left = (lookAt * up);
+                        left.normalize();
+                        left *= -1;
+                        position += left * speed;
                         break;
                     case Direction.RIGHT:
-                        position.x -= speed;
+                        var right = (lookAt * up);
+                        right.normalize();
+                        position += right * speed;
                         break;
-
+                    case Direction.UP:
+                        position.y += speed;
+                        break;
+                    case Direction.DOWN:
+                        position.y -= speed;
+                        break;
                     default:
                         break;
-                }
-
-                
+                }                
             }
 
             Render.userConfiguration.message = "position: x:" + position.x.ToString() + " y:" + position.y.ToString() + " z:" + position.z.ToString() + "\n";
@@ -209,22 +217,18 @@ namespace Physics_Simulation
 
             attachInput();
 
-            x_rotation = 0;
-            y_rotation = 0;
-
-            position = EYE_ORIGIN;
+            position = new Vector3(0,0,0);
+            lookAt   = new Vector3(0,0,1);
+            up       = new Vector3(0,1,0);
 
             initMovingTimer();
         }
 
         public void renderCamera()
         {
-            // TODO: do something about it
-
-            Gl.glRotated(x_rotation, 1, 0, 0);
-            Gl.glRotated(y_rotation, 0, 1, 0);
-
-            Gl.glTranslated(position.x, position.y, position.z);
+            Glu.gluLookAt(position.x, position.y, position.z,
+                          position.x + lookAt.x, position.y + lookAt.y, position.z + lookAt.z,
+                          up.x, up.y, up.z);
         }
 
         #endregion
