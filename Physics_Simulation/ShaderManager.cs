@@ -12,13 +12,13 @@ using System.Text;
 
 namespace Physics_Simulation
 {
-    public class ShaderManager
+    public static class ShaderManager
     {
         #region private_members
 
-        private List<ShaderProgram> shaders;
+        private static List<ShaderProgram> shaders;
 
-        private Shader create_shader(string shader_file)
+        private static Shader create_shader(string shader_file)
         {
             FileStream fs = new FileStream(shader_file, FileMode.Open);
 
@@ -44,7 +44,7 @@ namespace Physics_Simulation
             return shader;
         }
 
-        private void initialize_shader(Shader shader)
+        private static void initialize_shader(Shader shader)
         {
             Gl.glShaderSource(shader.id, shader.source.Count, shader.source.ToArray(), null);
             Gl.glCompileShader(shader.id);
@@ -63,7 +63,7 @@ namespace Physics_Simulation
             }
         }
 
-        private ShaderProgram create_shader_program(string program_directory)
+        private static ShaderProgram create_shader_program(string program_directory)
         {
             List<Shader> shaders_in_program = new List<Shader>();
 
@@ -108,7 +108,7 @@ namespace Physics_Simulation
 
         #region public_members
 
-        public ShaderManager()
+        public static void init()
         {
             if (Directory.Exists("Shaders"))
             {
@@ -141,9 +141,9 @@ namespace Physics_Simulation
             public string name;
         }
 
-        public bool error { get; private set; } = false;
+        public static bool error { get; private set; } = false;
 
-        public ShaderProgram getShader(string shaderName)
+        public static ShaderProgram getShader(string shaderName)
         {
             return shaders.Find(shader => shader.name == shaderName);
         }

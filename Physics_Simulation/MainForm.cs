@@ -20,7 +20,7 @@ namespace Physics_Simulation
             {
                 // set render configuration
                 Render.userConfiguration.FPS                    = 100;
-                Render.userConfiguration.backgroundColor        = Color.Gray;
+                Render.userConfiguration.backgroundColor        = Color.Black;
                 Render.userConfiguration.backGroundImageFormat  = ".jpg";
                 Render.userConfiguration.backgroundCubemapImage = "Textures/Cubemap/earth";
                 Render.userConfiguration.cameraSpeed            = 4;
