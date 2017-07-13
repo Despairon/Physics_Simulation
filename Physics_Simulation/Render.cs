@@ -480,7 +480,7 @@ namespace Physics_Simulation
                     graphics.InitializeContexts();
 
                     camera = new Camera(new Rectangle(graphics.PointToScreen(Point.Empty), graphics.Size));
-                    
+
                     Glut.glutInit();
                     Glut.glutInitDisplayMode(Glut.GLUT_RGB | Glut.GLUT_DOUBLE | Glut.GLUT_DEPTH);
                     Il.ilInit();
