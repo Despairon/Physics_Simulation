@@ -27,6 +27,8 @@ namespace Physics_Simulation
             }
             else
                 MessageBox.Show("already initialized or error occured");
+
+            ObjFileReader.read("Objects/cessna.obj");
         }
     }
 }

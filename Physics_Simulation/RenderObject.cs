@@ -171,6 +171,19 @@ namespace Physics_Simulation
             _transform.scale.x = x; _transform.scale.y = y; _transform.scale.z = z;
         }
 
+        public static RenderObject loadObjectFromFile(string filename)
+        {
+            var objFile = ObjFileReader.read(filename);
+
+            if (objFile == null)
+                return null;
+            else
+            {
+                return new RenderObject("", (List<Vector3>)null, Color.AliceBlue); // TODO: ...
+            }
+            
+        }
+
         #endregion
     }
 }
