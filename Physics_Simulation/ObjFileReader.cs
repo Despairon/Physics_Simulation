@@ -9,170 +9,229 @@ namespace Physics_Simulation
 {
     public static class ObjFileReader
     {
-        private struct ObjFileCommandTableItem
+        private enum Global_State
         {
-            public ObjFileCommandTableItem(string command, command_func cmd_func)
-            {
-                this.command = command;
-                this.cmd_func = cmd_func;
-            }
-
-            public delegate void   command_func(ObjFile objFile);
-
-            public readonly string       command;
-            public readonly command_func cmd_func;
+            IDLE,
+            IN_PROCESS
         }
 
-        private static ObjFileCommandTableItem[] cmd_table = new ObjFileCommandTableItem[]
+        private enum Local_State
         {
-            new ObjFileCommandTableItem("#",      comment_cmd_handler   ),
-            new ObjFileCommandTableItem("mtllib", matlib_cmd_handler    ),
-            new ObjFileCommandTableItem("usemtl", usemtl_cmd_handler    ),
-            new ObjFileCommandTableItem("v",      vertex_cmd_handler    ),
-            new ObjFileCommandTableItem("vt",     texcoord_cmd_handler  ),
-            new ObjFileCommandTableItem("vn",     normal_cmd_handler    ),
-            new ObjFileCommandTableItem("vp",     parameter_cmd_handler ),
-            new ObjFileCommandTableItem("f",      face_cmd_handler      ),
-            new ObjFileCommandTableItem("o",      object_cmd_handler    ),
-            new ObjFileCommandTableItem("g",      group_cmd_handler     ),
-            new ObjFileCommandTableItem("s",      smooth_cmd_handler    )
+            IDLE = 0,
+            READING_COMMENT,
+            READING_VERTEX,
+            READING_TEXCOORD,
+            READING_NORMAL,
+            READONG_MESH,
+            READING_FACE,
+            READING_SMOOTHING,
+            READING_MTLLIB,
+            READING_USEMTL
+        }
+
+        private struct FSM_Table_item
+        {
+            public FSM_Table_item(Local_State nextState, string cmd, func cmd_func)
+            {
+                this.nextState = nextState;
+                this.cmd       = cmd;
+                this.cmd_func  = cmd_func;
+            }
+            
+            public Local_State nextState;
+            public string cmd;
+            public func   cmd_func;
+
+            public delegate void func(ObjFile objFile);
+        }
+
+        private static List<FSM_Table_item> fsm_table = new List<FSM_Table_item>()
+        {
+            new FSM_Table_item(Local_State.READING_COMMENT,   "#",      FSM_Callbacks.read_commend),
+            new FSM_Table_item(Local_State.READING_VERTEX,    "v",      FSM_Callbacks.read_vertex),
+            new FSM_Table_item(Local_State.READING_TEXCOORD,  "vt",     FSM_Callbacks.read_texcoord),
+            new FSM_Table_item(Local_State.READING_NORMAL,    "vn",     FSM_Callbacks.read_normal),
+            new FSM_Table_item(Local_State.READONG_MESH,      "g",      FSM_Callbacks.read_mesh),
+            new FSM_Table_item(Local_State.READING_FACE,      "f",      FSM_Callbacks.read_face),
+            new FSM_Table_item(Local_State.READING_SMOOTHING, "s",      FSM_Callbacks.read_smoothing),
+            new FSM_Table_item(Local_State.READING_MTLLIB,    "mtllib", FSM_Callbacks.read_mtllib),
+            new FSM_Table_item(Local_State.READING_USEMTL,    "usemtl", FSM_Callbacks.read_usemtl)
         };
 
-        private static void comment_cmd_handler(ObjFile objFile)
+        private static Global_State   _gState = Global_State.IDLE;
+        private static Local_State    _lState = Local_State.IDLE;
+
+        private static void changeGlobalState(Global_State gState)
         {
-            sReader.ReadLine();
+            _gState = gState;
         }
 
-        private static void matlib_cmd_handler(ObjFile objFile)
+        private static void changeLocalState(Local_State lState)
         {
-            string matlib = sReader.ReadLine();
-            objFile.setMatLib(matlib);
+            _lState = lState;
         }
 
-        private static void usemtl_cmd_handler(ObjFile objFile)
+        private static void execute_fsm(ObjFile objFile)
         {
-            // TODO: IMPLEMENT!
+            string cmd = objFile.nextCmd();
+
+            var fsm_table_item = fsm_table.Find(item => item.cmd == cmd);
+
+            if (fsm_table_item.cmd_func != null)
+            {
+                changeLocalState(fsm_table_item.nextState);
+                fsm_table_item.cmd_func(objFile);
+            }
         }
 
-        private static void vertex_cmd_handler(ObjFile objFile)
+        private struct FSM_Callbacks
         {
-            // TODO: IMPLEMENT!
+            public static void read_commend(ObjFile objFile)
+            {
+                objFile.skipLine();
+            }
+
+            public static void read_vertex(ObjFile objFile)
+            {
+                var vertex_str = objFile.getLine();
+                // TODO: implement
+            }
+
+            public static void read_texcoord(ObjFile objFile)
+            {
+                var texcoord_str = objFile.getLine();
+                // TODO: implement
+            }
+
+            public static void read_normal(ObjFile objFile)
+            {
+                var normal_str = objFile.getLine();
+                // TODO: implement
+            }
+
+            public static void read_mesh(ObjFile objFile)
+            {
+                var group_str = objFile.getLine();
+                if (group_str != "")
+                { }
+                // TODO: implement
+            }
+
+            public static void read_face(ObjFile objFile)
+            {
+                var face_str = objFile.getLine();
+                // TODO: implement
+            }
+
+            public static void read_smoothing(ObjFile objFile)
+            {
+                var smoothing_str = objFile.getLine();
+                // TODO: implement
+            }
+
+            public static void read_mtllib(ObjFile objFile)
+            {
+                var matlib_str = objFile.getLine();
+                // TODO: implement
+            }
+
+            public static void read_usemtl(ObjFile objFile)
+            {
+                var usemtl_str = objFile.getLine();
+                // TODO: implement
+            }
         }
-
-        private static void texcoord_cmd_handler(ObjFile objFile)
-        {
-            // TODO: IMPLEMENT!
-        }
-
-        private static void normal_cmd_handler(ObjFile objFile)
-        {
-            // TODO: IMPLEMENT!
-        }
-
-        private static void parameter_cmd_handler(ObjFile objFile)
-        {
-            comment_cmd_handler(objFile);
-            // TODO: not implemented
-        }
-
-        private static void face_cmd_handler(ObjFile objFile)
-        {
-            // TODO: IMPLEMENT!
-        }
-
-        private static void object_cmd_handler(ObjFile objFile)
-        {
-            // TODO: IMPLEMENT!
-        }
-
-        private static void group_cmd_handler(ObjFile objFile)
-        {
-            // TODO: IMPLEMENT!
-        }
-
-        private static void smooth_cmd_handler(ObjFile objFile)
-        {
-            comment_cmd_handler(objFile);
-            // TODO: not implemented
-        }
-
-        private static FileStream   fStream;
-        private static StreamReader sReader;
-
+       
         public static ObjFile read(string filename)
         {
-            if (!filename.Contains(".obj"))
-                return null;
-            else
+            ObjFile objFile = null;
+
+            if (_gState == Global_State.IDLE)
             {
-                try
+                changeGlobalState(Global_State.IN_PROCESS);
+
+                FileStream fs = new FileStream(filename, FileMode.Open);
+
+                if (fs != null)
                 {
-                    ObjFile objFile = new ObjFile(filename);
-
-                    fStream = new FileStream(filename, FileMode.Open);
-                    sReader = new StreamReader(fStream);
-
-                    while (!sReader.EndOfStream)
+                    if (fs.CanRead)
                     {
-                        string command = "";
-                        char ch = '\0';
-
-                        while (ch != ' ')
+                        StreamReader sr = new StreamReader(fs);
+                        if (sr != null)
                         {
-                            ch = (char)sReader.Read();
-                            command += ch;                    
+                            string source = sr.ReadToEnd();
+                            objFile = new ObjFile(filename, source);
+
+                            while (!objFile.eof)
+                                execute_fsm(objFile);
                         }
-
-                        command = command.Trim();
-
-                        var ctrl = Array.Find(cmd_table, cmd => cmd.command == command);
-
-                        ctrl.cmd_func(objFile);
                     }
-
-                    fStream.Close();
-                    sReader.Close();
-
-                    return objFile;
                 }
-                catch(Exception)
-                {
-                    return null;
-                }
+
+                changeGlobalState(Global_State.IDLE);
             }
-        }
-    }
 
-    public class ObjFile
-    {
-        public ObjFile(string name)
-        {
-            this.name = name;
-
-            vertices  = new List<Vector3>();
-            texcoords = new List<Vector2>();
-            normals   = new List<Vector3>();
-
-            matlib = "";
+            return objFile;
         }
 
-        public readonly string name;
-
-        public List<Vector3> vertices  { get; private set; }
-        public List<Vector2> texcoords { get; private set; }
-        public List<Vector3> normals   { get; private set; }
-
-        public string matlib           { get; private set; }
-
-        public void setMatLib(string matlib)
+        public class ObjFile
         {
-            if (!matLibSet)
+            public ObjFile(string name, string source)
             {
-                this.matlib = matlib;
-                matLibSet = true;
+                this.name   = name;
+                this.source = source;
+                index = 0;
             }
-        }
 
-        private bool matLibSet = false;
+            private int index;
+
+            public string name   { get; private set; }
+            public string source { get; private set; }
+
+            public bool eof
+            {
+                get { return index == source.Length; }
+            }
+
+            public string nextCmd()
+            {
+                string cmd = "";
+
+                while (true)
+                {
+                    cmd += source[index];
+                    index++;
+
+                    if (index == source.Length) break;
+                    if (source[index] == '\n')  break;
+                    if (source[index] == '\0')  break;
+                    if (source[index] == ' ')   break;
+                }
+
+                return cmd.Trim();
+            }
+
+            public void skipLine()
+            {
+                while ((source[index] != '\n') && (source[index] != '\0'))
+                    index++;
+            }
+
+            public string getLine()
+            {
+                string line = "";
+
+                while ((source[index] != '\n') && (source[index] != '\0'))
+                {
+                    line += source[index];
+                    index++;
+                }
+
+                var trimmedLine = line.TrimStart().TrimEnd();
+                return trimmedLine;
+            }
+                  
+            // TODO: implement
+        }
     }
 }
