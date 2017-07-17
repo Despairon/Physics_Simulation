@@ -179,7 +179,34 @@ namespace Physics_Simulation
                 return null;
             else
             {
-                return new RenderObject("", (List<Vector3>)null, Color.AliceBlue); // TODO: ...
+                // TODO: this is very bad implementation. Rework it to make with VBO
+
+                string name = objFile.name;
+
+                List<Triangle> triangles = new List<Triangle>();
+
+                foreach (var mesh in objFile.meshes)
+                    foreach (var face in mesh.faces)
+                    {
+                        Vector3 _a = objFile.vertices[face.vertex_indices[0] - 1];
+                        Vector3 _b = objFile.vertices[face.vertex_indices[1] - 1];
+                        Vector3 _c = objFile.vertices[face.vertex_indices[2] - 1];
+
+                        Triangle triangle = new Triangle(_a, _b, _c);
+
+                        triangles.Add(triangle);
+                    }
+
+                Random rnd = new Random(DateTime.Now.Millisecond);
+                int r = (int)(rnd.NextDouble() * 0xFF);
+                int g = (int)(rnd.NextDouble() * 0xFF);
+                int b = (int)(rnd.NextDouble() * 0xFF);
+
+                Color c = Color.FromArgb(r, g, b);
+
+                var obj = new RenderObject(name, triangles, c);
+
+                return obj;
             }
             
         }

@@ -28,7 +28,9 @@ namespace Physics_Simulation
             else
                 MessageBox.Show("already initialized or error occured");
 
-            ObjFileReader.read("Objects/cessna.obj");
+            var obj = RenderObject.loadObjectFromFile("Objects/teapot.obj");
+            obj.scale(0.03,0.03,0.03);
+            Render.instantiateObject(obj);
         }
     }
 }

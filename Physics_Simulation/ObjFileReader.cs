@@ -9,6 +9,8 @@ namespace Physics_Simulation
 {
     public static class ObjFileReader
     {
+        #region private_members
+
         private enum Global_State
         {
             IDLE,
@@ -93,34 +95,106 @@ namespace Physics_Simulation
 
             public static void read_vertex(ObjFile objFile)
             {
-                var vertex_str = objFile.getLine();
-                // TODO: implement
+                var vertex_str = new List<string>(objFile.getLine().Split(' '));
+
+                vertex_str.RemoveAll(str => (str == "") || (str == " "));
+
+                if (vertex_str.Count == 3)
+                {
+                    Vector3 vertex = new Vector3();
+                    vertex.x = Convert.ToDouble(vertex_str[0]);
+                    vertex.y = Convert.ToDouble(vertex_str[1]);
+                    vertex.z = Convert.ToDouble(vertex_str[2]);
+
+                    objFile.vertices.Add(vertex);
+                }
             }
 
             public static void read_texcoord(ObjFile objFile)
             {
-                var texcoord_str = objFile.getLine();
-                // TODO: implement
+                var texcoord_str = new List<string>(objFile.getLine().Split(' '));
+
+                texcoord_str.RemoveAll(str => (str == "") || (str == " "));
+
+                if (texcoord_str.Count == 2)
+                {
+                    Vector2 texcoord = new Vector2();
+                    texcoord.x = Convert.ToDouble(texcoord_str[0]);
+                    texcoord.y = Convert.ToDouble(texcoord_str[1]);
+
+                    objFile.texcoords.Add(texcoord);
+                }
             }
 
             public static void read_normal(ObjFile objFile)
             {
-                var normal_str = objFile.getLine();
-                // TODO: implement
+                var normal_str = new List<string>(objFile.getLine().Split(' '));
+
+                normal_str.RemoveAll(str => (str == "") || (str == " "));
+
+                if (normal_str.Count == 3)
+                {
+                    Vector3 normal = new Vector3();
+                    normal.x = Convert.ToDouble(normal_str[0]);
+                    normal.y = Convert.ToDouble(normal_str[1]);
+                    normal.z = Convert.ToDouble(normal_str[2]);
+
+                    objFile.normals.Add(normal);
+                }
             }
 
             public static void read_mesh(ObjFile objFile)
             {
                 var group_str = objFile.getLine();
                 if (group_str != "")
-                { }
-                // TODO: implement
+                {
+                    var mesh = new ObjFile.Mesh(group_str);
+
+                    objFile.addMesh(mesh);
+                }
             }
 
             public static void read_face(ObjFile objFile)
             {
                 var face_str = objFile.getLine();
-                // TODO: implement
+
+                var mesh = objFile.currMesh;
+
+                var face_str_splitted = new List<string>(face_str.Split(' '));
+
+                face_str_splitted.RemoveAll(str => (str == "") || (str == " "));
+
+                List<int> vertex_indices   = new List<int>();
+                List<int> texcoord_indices = new List<int>();
+                List<int> normal_indices   = new List<int>();
+
+                foreach (var str in face_str_splitted)
+                {
+                    var str_splitted = str.Split('/');
+
+                    switch (str_splitted.Length)
+                    {
+                        case 1:
+                            vertex_indices.Add(Convert.ToInt32(str_splitted[0]));
+                            break;
+                        case 2:
+                            vertex_indices.Add(Convert.ToInt32(str_splitted[0]));
+                            texcoord_indices.Add(Convert.ToInt32(str_splitted[1]));
+                            break;
+                        case 3:
+                            vertex_indices.Add(Convert.ToInt32(str_splitted[0]));
+                            if (str_splitted[1] != "")
+                                texcoord_indices.Add(Convert.ToInt32(str_splitted[1]));
+                            normal_indices.Add(Convert.ToInt32(str_splitted[2]));
+                            break;
+
+                        default: break;
+                    }
+                }
+
+                var face = new ObjFile.Mesh.Face(vertex_indices.ToArray(), texcoord_indices.ToArray(), normal_indices.ToArray());
+
+                mesh.faces.Add(face); 
             }
 
             public static void read_smoothing(ObjFile objFile)
@@ -132,7 +206,8 @@ namespace Physics_Simulation
             public static void read_mtllib(ObjFile objFile)
             {
                 var matlib_str = objFile.getLine();
-                // TODO: implement
+
+                objFile.setMatLib(matlib_str);
             }
 
             public static void read_usemtl(ObjFile objFile)
@@ -141,7 +216,11 @@ namespace Physics_Simulation
                 // TODO: implement
             }
         }
-       
+
+        #endregion
+
+        #region public_members 
+
         public static ObjFile read(string filename)
         {
             ObjFile objFile = null;
@@ -176,14 +255,27 @@ namespace Physics_Simulation
 
         public class ObjFile
         {
+            #region private_members
+
+            private int index;
+
+            #endregion
+
+            #region public_members
+
             public ObjFile(string name, string source)
             {
                 this.name   = name;
                 this.source = source;
+
+                vertices  = new List<Vector3>();
+                texcoords = new List<Vector2>();
+                normals   = new List<Vector3>();
+
+                meshes    = new List<Mesh>();
+
                 index = 0;
             }
-
-            private int index;
 
             public string name   { get; private set; }
             public string source { get; private set; }
@@ -230,8 +322,64 @@ namespace Physics_Simulation
                 var trimmedLine = line.TrimStart().TrimEnd();
                 return trimmedLine;
             }
+
+            public List<Vector3> vertices  { get; private set; }
+            public List<Vector2> texcoords { get; private set; }
+            public List<Vector3> normals   { get; private set; }
                   
-            // TODO: implement
+            public string matlib { get; private set; }
+
+            private bool matlibSet = false;
+            public void setMatLib(string matlib)
+            {
+                if (!matlibSet)
+                {
+                    this.matlib = matlib;
+                    matlibSet = true;
+                }
+            }
+
+            public class Mesh
+            {
+                private string name;
+
+                public Mesh(string name)
+                {
+                    this.name  = name;
+
+                    faces = new List<Face>();
+                }
+
+                public struct Face
+                {
+                    public Face(int[] vertex_indices, int[] texcoord_indices, int[] normal_indices)
+                    {
+                        this.vertex_indices   = vertex_indices;
+                        this.texcoord_indices = texcoord_indices;
+                        this.normal_indices   = normal_indices;
+                    }
+
+                    public int[] vertex_indices;
+                    public int[] texcoord_indices;
+                    public int[] normal_indices;
+                }
+
+                public List<Face> faces { get; private set; }
+            }
+
+            public List<Mesh> meshes    { get; private set; }
+
+            public Mesh currMesh        { get; private set; }
+
+            public void addMesh(Mesh mesh)
+            {
+                meshes.Add(mesh);
+                currMesh = mesh;
+            }
         }
+
+        #endregion
+
+        #endregion
     }
 }
