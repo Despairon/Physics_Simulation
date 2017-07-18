@@ -100,7 +100,7 @@ namespace Physics_Simulation
 
                 vertex_str.RemoveAll(str => (str == "") || (str == " "));
 
-                if (vertex_str.Count == 3)
+                if ((vertex_str.Count == 3) || (vertex_str.Count == 4 && vertex_str[3] != ""))
                 {
                     Vector3 vertex = new Vector3();
                     vertex.x = Convert.ToDouble(vertex_str[0]);
@@ -117,7 +117,7 @@ namespace Physics_Simulation
 
                 texcoord_str.RemoveAll(str => (str == "") || (str == " "));
 
-                if (texcoord_str.Count == 2)
+                if (texcoord_str.Count == 2 || (texcoord_str.Count == 3 && texcoord_str[2] != ""))
                 {
                     Vector2 texcoord = new Vector2();
                     texcoord.x = Convert.ToDouble(texcoord_str[0]);
@@ -133,7 +133,7 @@ namespace Physics_Simulation
 
                 normal_str.RemoveAll(str => (str == "") || (str == " "));
 
-                if (normal_str.Count == 3)
+                if (normal_str.Count == 3 || (normal_str.Count == 4 && normal_str[3] != ""))
                 {
                     Vector3 normal = new Vector3();
                     normal.x = Convert.ToDouble(normal_str[0]);
@@ -182,31 +182,37 @@ namespace Physics_Simulation
                         case 1:
                             {
                                 vertex_index = Convert.ToInt32(str_splitted[0]);
-                                vertex_index = vertex_index > 0 ? vertex_index : (objFile.vertices.Count - (vertex_index * -1) + 1);
+                                if (vertex_index < 0)
+                                    vertex_index = (objFile.vertices.Count - (vertex_index * -1) + 1);
                             }
                             break;
                         case 2:
                             {
                                 vertex_index = Convert.ToInt32(str_splitted[0]);
-                                vertex_index = vertex_index > 0 ? vertex_index : (objFile.vertices.Count - (vertex_index * -1) + 1);
+                                if (vertex_index < 0)
+                                    vertex_index = (objFile.vertices.Count - (vertex_index * -1) + 1);
 
                                 texcoord_index = Convert.ToInt32(str_splitted[1]);
-                                texcoord_index = texcoord_index > 0 ? texcoord_index : (objFile.texcoords.Count - (texcoord_index * -1) + 1);
+                                if (texcoord_index < 0)
+                                    texcoord_index = (objFile.texcoords.Count - (texcoord_index * -1) + 1);
                             }
                             break;
                         case 3:
                             {
                                 vertex_index = Convert.ToInt32(str_splitted[0]);
-                                vertex_index = vertex_index > 0 ? vertex_index : (objFile.vertices.Count - (vertex_index * -1) + 1);
+                                if (vertex_index < 0)
+                                    vertex_index = (objFile.vertices.Count - (vertex_index * -1) + 1);
 
                                 if (str_splitted[1] != "")
                                 {
                                     texcoord_index = Convert.ToInt32(str_splitted[1]);
-                                    texcoord_index = texcoord_index > 0 ? texcoord_index : (objFile.texcoords.Count - (texcoord_index * -1) + 1);
+                                    if (texcoord_index < 0)
+                                        texcoord_index = (objFile.texcoords.Count - (texcoord_index * -1) + 1);
                                 }
 
                                 normal_index = Convert.ToInt32(str_splitted[2]);
-                                normal_index = normal_index > 0 ? normal_index : (objFile.normals.Count - (normal_index * -1) + 1);
+                                if (normal_index < 0)
+                                    normal_index = (objFile.normals.Count - (normal_index * -1) + 1);
                             }
                             break;
 
