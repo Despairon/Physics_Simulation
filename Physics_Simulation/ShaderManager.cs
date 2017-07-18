@@ -12,41 +12,59 @@ using System.Text;
 
 namespace Physics_Simulation
 {
-    public class ShaderManager
+    public static class ShaderManager
     {
         #region private_members
 
-        private List<ShaderProgram> shaders;
+        private static List<ShaderProgram> shaders;
 
-        private Shader create_shader(string shader_file)
+        private struct ShaderExtentionTableItem
+        {
+            public ShaderExtentionTableItem(string extention, int shader_type)
+            {
+                this.extention   = extention;
+                this.shader_type = shader_type;
+            }
+
+            public readonly string extention;
+            public readonly int    shader_type; 
+        };
+
+        private static ShaderExtentionTableItem[] shaderExtentionTable = new ShaderExtentionTableItem[]
+        {
+            new ShaderExtentionTableItem(".vert", Gl.GL_VERTEX_SHADER       ),
+            new ShaderExtentionTableItem(".frag", Gl.GL_FRAGMENT_SHADER     ),
+            new ShaderExtentionTableItem(".geom", Gl.GL_GEOMETRY_SHADER_EXT )
+        };
+
+        private static Shader create_shader(string shader_file)
         {
             FileStream fs = new FileStream(shader_file, FileMode.Open);
 
             StreamReader sr = new StreamReader(fs);
 
-            Shader shader = new Shader(-1, "", new List<string>());
+            Shader shader = new Shader(-1, "", "");
 
-            if (shader_file.Contains("vertex") || shader_file.Contains("Vertex"))
-            {
-                shader.id   = Gl.glCreateShader(Gl.GL_VERTEX_SHADER);
-                shader.name = shader_file;
-                while (!sr.EndOfStream)
-                    shader.source.Add(sr.ReadLine() + "\n");
-            }
-            else if (shader_file.Contains("fragment") || shader_file.Contains("Fragment"))
-            {
-                shader.id   = Gl.glCreateShader(Gl.GL_FRAGMENT_SHADER);
-                shader.name = shader_file;
-                while (!sr.EndOfStream)
-                    shader.source.Add(sr.ReadLine() + "\n");
-            }
+            foreach (var shaderExtention in shaderExtentionTable)
+                if (shader_file.Contains(shaderExtention.extention))
+                {
+                    shader.id   = Gl.glCreateShader(shaderExtention.shader_type);
+                    shader.name = shader_file;
+                    shader.source = sr.ReadToEnd();
 
+                    break;
+                }
+                       
             return shader;
         }
 
-        private void initialize_shader(Shader shader)
+        private static void initialize_shader(Shader shader)
         {
-            Gl.glShaderSource(shader.id, shader.source.Count, shader.source.ToArray(), null);
+            string[] shaderSource = new string[1];
+            shaderSource[0] = shader.source;
+
+            Gl.glShaderSource(shader.id, 1, shaderSource, null);
+
             Gl.glCompileShader(shader.id);
 
             int isCompiled;
@@ -56,20 +74,18 @@ namespace Physics_Simulation
                 int len;
                 StringBuilder log = new StringBuilder(256);
                 Gl.glGetShaderInfoLog(shader.id, 256, out len, log);
-                string source = "";
-                foreach (var line in shader.source.ToArray())
-                    source += line;
-                MessageBox.Show("Shader " + shader.name + " has not been successfully compiled. Code: \n"+ source + "\n error log: \n" + log.ToString());
+                MessageBox.Show("Shader " + shader.name + " has not been successfully compiled. Code: \n"+ shaderSource + "\n error log: \n" + log.ToString());
             }
         }
 
-        private ShaderProgram create_shader_program(string program_directory)
+        private static ShaderProgram create_shader_program(string program_directory)
         {
             List<Shader> shaders_in_program = new List<Shader>();
 
             List<string> shader_files = new List<string>();
 
-            shader_files.AddRange(Directory.GetFiles(program_directory, "*.glsl"));
+            foreach (var shaderExtention in shaderExtentionTable)
+                shader_files.AddRange(Directory.GetFiles(program_directory, "*"+shaderExtention.extention));
 
             foreach (var shader_file in shader_files)
                 shaders_in_program.Add(create_shader(shader_file));
@@ -108,14 +124,17 @@ namespace Physics_Simulation
 
         #region public_members
 
-        public ShaderManager()
+        public static void init()
         {
             if (Directory.Exists("Shaders"))
             {
                 shaders = new List<ShaderProgram>();
 
-                foreach (var directory in Directory.GetDirectories("Shaders"))
-                    shaders.Add(create_shader_program(directory));
+                foreach (var subDirectory in Directory.GetDirectories("Shaders"))
+                {
+                    if (Directory.GetFiles(subDirectory).Length != 0)
+                        shaders.Add(create_shader_program(subDirectory));
+                }
             }
             else
                 error = true;
@@ -123,7 +142,7 @@ namespace Physics_Simulation
 
         public struct Shader
         {
-            public Shader(int id, string name, List<string> source)
+            public Shader(int id, string name, string source)
             {
                 this.id     = id;
                 this.name   = name;
@@ -132,7 +151,7 @@ namespace Physics_Simulation
 
             public int          id;
             public string       name;
-            public List<string> source;
+            public string       source;
         }
 
         public struct ShaderProgram
@@ -141,11 +160,21 @@ namespace Physics_Simulation
             public string name;
         }
 
-        public bool error { get; private set; } = false;
+        public static bool error { get; private set; } = false;
 
-        public ShaderProgram getShader(string shaderName)
+        public static ShaderProgram getShader(string shaderName)
         {
             return shaders.Find(shader => shader.name == shaderName);
+        }
+
+        public static string[] getShadersList()
+        {
+            List<string> list = new List<string>();
+
+            foreach (var shader in shaders)
+                list.Add(shader.name);
+
+            return list.ToArray();
         }
 
         #endregion

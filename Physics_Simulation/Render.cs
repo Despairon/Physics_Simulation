@@ -29,7 +29,6 @@ namespace Physics_Simulation
         private static Timer               drawingTimer;
         private static bool                initialized;
         private static Camera              camera;
-        private static ShaderManager       shaderManager;
         private static Cubemap             cubemap;
         private static List<RenderObject>  objects;
 
@@ -43,8 +42,8 @@ namespace Physics_Simulation
 
         private static bool initializeShaders()
         {
-            shaderManager = new ShaderManager();
-            if (shaderManager.error)
+            ShaderManager.init();
+            if (ShaderManager.error)
                 return false;
             return true;
         }
@@ -251,7 +250,7 @@ namespace Physics_Simulation
 
             /*****************************TODO: debug, delete*************************************/
 
-            var shader = shaderManager.getShader("Cubemap");
+            var shader = ShaderManager.getShader("Cubemap");
             if (shader.id != -1)
             {
                 Gl.glUseProgram(shader.id);
@@ -388,7 +387,7 @@ namespace Physics_Simulation
 
                 _cameraSpeed = 4;
 
-                _backgroundColor = Color.Gray;
+                _backgroundColor = Color.Black;
                 float r = (float)_backgroundColor.R / 256;
                 float g = (float)_backgroundColor.G / 256;
                 float b = (float)_backgroundColor.B / 256;
@@ -481,7 +480,7 @@ namespace Physics_Simulation
                     graphics.InitializeContexts();
 
                     camera = new Camera(new Rectangle(graphics.PointToScreen(Point.Empty), graphics.Size));
-                    
+
                     Glut.glutInit();
                     Glut.glutInitDisplayMode(Glut.GLUT_RGB | Glut.GLUT_DOUBLE | Glut.GLUT_DEPTH);
                     Il.ilInit();
@@ -521,7 +520,6 @@ namespace Physics_Simulation
         {
             graphics.ParentForm.WindowState = graphics.ParentForm.WindowState == FormWindowState.Normal ? FormWindowState.Maximized : FormWindowState.Normal;
             graphics.ParentForm.FormBorderStyle = graphics.ParentForm.FormBorderStyle == FormBorderStyle.FixedDialog ? FormBorderStyle.None : FormBorderStyle.FixedDialog;
-            // reset viewport and perspective
             Gl.glViewport(0, 0, graphics.Width, graphics.Height);
             Gl.glMatrixMode(Gl.GL_PROJECTION);
             Gl.glLoadIdentity();

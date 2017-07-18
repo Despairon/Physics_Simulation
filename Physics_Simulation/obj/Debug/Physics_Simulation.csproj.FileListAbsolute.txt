@@ -15,3 +15,20 @@ c:\users\mrybalsky\documents\visual studio 2015\Projects\Physics_Simulation\Phys
 c:\users\mrybalsky\documents\visual studio 2015\Projects\Physics_Simulation\Physics_Simulation\bin\Debug\Tao.Platform.Windows.xml
 c:\users\mrybalsky\documents\visual studio 2015\Projects\Physics_Simulation\Physics_Simulation\obj\Debug\Physics_Simulation.exe
 c:\users\mrybalsky\documents\visual studio 2015\Projects\Physics_Simulation\Physics_Simulation\obj\Debug\Physics_Simulation.pdb
+E:\Programs\Physics_Simulation\Physics_Simulation\bin\Debug\Physics_Simulation.exe.config
+E:\Programs\Physics_Simulation\Physics_Simulation\obj\Debug\Physics_Simulation.exe
+E:\Programs\Physics_Simulation\Physics_Simulation\obj\Debug\Physics_Simulation.pdb
+E:\Programs\Physics_Simulation\Physics_Simulation\bin\Debug\Physics_Simulation.exe
+E:\Programs\Physics_Simulation\Physics_Simulation\bin\Debug\Physics_Simulation.pdb
+E:\Programs\Physics_Simulation\Physics_Simulation\bin\Debug\Tao.DevIl.dll
+E:\Programs\Physics_Simulation\Physics_Simulation\bin\Debug\Tao.FreeGlut.dll
+E:\Programs\Physics_Simulation\Physics_Simulation\bin\Debug\Tao.OpenGl.dll
+E:\Programs\Physics_Simulation\Physics_Simulation\bin\Debug\Tao.Platform.Windows.dll
+E:\Programs\Physics_Simulation\Physics_Simulation\bin\Debug\Tao.DevIl.xml
+E:\Programs\Physics_Simulation\Physics_Simulation\bin\Debug\Tao.FreeGlut.xml
+E:\Programs\Physics_Simulation\Physics_Simulation\bin\Debug\Tao.OpenGl.xml
+E:\Programs\Physics_Simulation\Physics_Simulation\bin\Debug\Tao.Platform.Windows.xml
+E:\Programs\Physics_Simulation\Physics_Simulation\obj\Debug\Physics_Simulation.csprojResolveAssemblyReference.cache
+E:\Programs\Physics_Simulation\Physics_Simulation\obj\Debug\Physics_Simulation.MainForm.resources
+E:\Programs\Physics_Simulation\Physics_Simulation\obj\Debug\Physics_Simulation.Properties.Resources.resources
+E:\Programs\Physics_Simulation\Physics_Simulation\obj\Debug\Physics_Simulation.csproj.GenerateResource.Cache
