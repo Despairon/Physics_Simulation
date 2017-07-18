@@ -2,7 +2,18 @@
 
 namespace Physics_Simulation
 {
-    public struct Vector3
+    public struct Vector2
+    {
+        public Vector2(double x, double y)
+        {
+            this.x = x;
+            this.y = y;
+        }
+
+        public double x;
+        public double y;
+    }
+        public struct Vector3
     {
         public Vector3(double x, double y, double z)
         {
