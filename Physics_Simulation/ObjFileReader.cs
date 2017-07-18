@@ -24,7 +24,7 @@ namespace Physics_Simulation
             READING_VERTEX,
             READING_TEXCOORD,
             READING_NORMAL,
-            READONG_MESH,
+            READING_MESH,
             READING_FACE,
             READING_SMOOTHING,
             READING_MTLLIB,
@@ -53,7 +53,8 @@ namespace Physics_Simulation
             new FSM_Table_item(Local_State.READING_VERTEX,    "v",      FSM_Callbacks.read_vertex),
             new FSM_Table_item(Local_State.READING_TEXCOORD,  "vt",     FSM_Callbacks.read_texcoord),
             new FSM_Table_item(Local_State.READING_NORMAL,    "vn",     FSM_Callbacks.read_normal),
-            new FSM_Table_item(Local_State.READONG_MESH,      "g",      FSM_Callbacks.read_mesh),
+            new FSM_Table_item(Local_State.READING_MESH,      "g",      FSM_Callbacks.read_mesh),
+            new FSM_Table_item(Local_State.READING_MESH,      "o",      FSM_Callbacks.read_mesh),
             new FSM_Table_item(Local_State.READING_FACE,      "f",      FSM_Callbacks.read_face),
             new FSM_Table_item(Local_State.READING_SMOOTHING, "s",      FSM_Callbacks.read_smoothing),
             new FSM_Table_item(Local_State.READING_MTLLIB,    "mtllib", FSM_Callbacks.read_mtllib),
@@ -172,24 +173,54 @@ namespace Physics_Simulation
                 {
                     var str_splitted = str.Split('/');
 
+                    int vertex_index   = 0;
+                    int texcoord_index = 0;
+                    int normal_index   = 0;
+
                     switch (str_splitted.Length)
                     {
                         case 1:
-                            vertex_indices.Add(Convert.ToInt32(str_splitted[0]));
+                            {
+                                vertex_index = Convert.ToInt32(str_splitted[0]);
+                                vertex_index = vertex_index > 0 ? vertex_index : (objFile.vertices.Count - (vertex_index * -1) + 1);
+                            }
                             break;
                         case 2:
-                            vertex_indices.Add(Convert.ToInt32(str_splitted[0]));
-                            texcoord_indices.Add(Convert.ToInt32(str_splitted[1]));
+                            {
+                                vertex_index = Convert.ToInt32(str_splitted[0]);
+                                vertex_index = vertex_index > 0 ? vertex_index : (objFile.vertices.Count - (vertex_index * -1) + 1);
+
+                                texcoord_index = Convert.ToInt32(str_splitted[1]);
+                                texcoord_index = texcoord_index > 0 ? texcoord_index : (objFile.texcoords.Count - (texcoord_index * -1) + 1);
+                            }
                             break;
                         case 3:
-                            vertex_indices.Add(Convert.ToInt32(str_splitted[0]));
-                            if (str_splitted[1] != "")
-                                texcoord_indices.Add(Convert.ToInt32(str_splitted[1]));
-                            normal_indices.Add(Convert.ToInt32(str_splitted[2]));
+                            {
+                                vertex_index = Convert.ToInt32(str_splitted[0]);
+                                vertex_index = vertex_index > 0 ? vertex_index : (objFile.vertices.Count - (vertex_index * -1) + 1);
+
+                                if (str_splitted[1] != "")
+                                {
+                                    texcoord_index = Convert.ToInt32(str_splitted[1]);
+                                    texcoord_index = texcoord_index > 0 ? texcoord_index : (objFile.texcoords.Count - (texcoord_index * -1) + 1);
+                                }
+
+                                normal_index = Convert.ToInt32(str_splitted[2]);
+                                normal_index = normal_index > 0 ? normal_index : (objFile.normals.Count - (normal_index * -1) + 1);
+                            }
                             break;
 
                         default: break;
                     }
+
+                    if (vertex_index != 0)
+                        vertex_indices.Add(vertex_index);
+
+                    if (texcoord_index != 0)
+                        texcoord_indices.Add(texcoord_index);
+
+                    if (normal_index != 0)
+                        normal_indices.Add(normal_index);
                 }
 
                 var face = new ObjFile.Mesh.Face(vertex_indices.ToArray(), texcoord_indices.ToArray(), normal_indices.ToArray());
