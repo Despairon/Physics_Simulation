@@ -30,7 +30,6 @@ namespace Physics_Simulation
         private static Timer               drawingTimer;
         private static bool                initialized;
         private static Camera              camera;
-        private static ShaderManager       shaderManager;
         private static Cubemap             cubemap;
         private static List<RenderObject>  objects;
 
@@ -44,8 +43,8 @@ namespace Physics_Simulation
 
         private static bool initializeShaders()
         {
-            shaderManager = new ShaderManager();
-            if (shaderManager.error)
+            ShaderManager.init();
+            if (ShaderManager.error)
                 return false;
             return true;
         }
@@ -252,7 +251,7 @@ namespace Physics_Simulation
 
             /*****************************TODO: debug, delete*************************************/
 
-            var shader = shaderManager.getShader("Cubemap");
+            var shader = ShaderManager.getShader("Cubemap");
             if (shader.id != -1)
             {
                 Gl.glUseProgram(shader.id);
@@ -547,7 +546,6 @@ namespace Physics_Simulation
         {
             graphics.ParentForm.WindowState = graphics.ParentForm.WindowState == FormWindowState.Normal ? FormWindowState.Maximized : FormWindowState.Normal;
             graphics.ParentForm.FormBorderStyle = graphics.ParentForm.FormBorderStyle == FormBorderStyle.FixedDialog ? FormBorderStyle.None : FormBorderStyle.FixedDialog;
-            // reset viewport and perspective
             Gl.glViewport(0, 0, graphics.Width, graphics.Height);
             Gl.glMatrixMode(Gl.GL_PROJECTION);
             Gl.glLoadIdentity();

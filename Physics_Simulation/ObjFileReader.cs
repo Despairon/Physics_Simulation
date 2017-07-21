@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -103,9 +104,9 @@ namespace Physics_Simulation
                 if ((vertex_str.Count == 3) || (vertex_str.Count == 4 && vertex_str[3] != ""))
                 {
                     Vector3 vertex = new Vector3();
-                    vertex.x = Convert.ToDouble(vertex_str[0]);
-                    vertex.y = Convert.ToDouble(vertex_str[1]);
-                    vertex.z = Convert.ToDouble(vertex_str[2]);
+                    vertex.x = double.Parse(vertex_str[0], CultureInfo.InvariantCulture);
+                    vertex.y = double.Parse(vertex_str[1], CultureInfo.InvariantCulture);
+                    vertex.z = double.Parse(vertex_str[2], CultureInfo.InvariantCulture);
 
                     objFile.vertices.Add(vertex);
                 }
@@ -120,8 +121,8 @@ namespace Physics_Simulation
                 if (texcoord_str.Count == 2 || (texcoord_str.Count == 3 && texcoord_str[2] != ""))
                 {
                     Vector2 texcoord = new Vector2();
-                    texcoord.x = Convert.ToDouble(texcoord_str[0]);
-                    texcoord.y = Convert.ToDouble(texcoord_str[1]);
+                    texcoord.x = double.Parse(texcoord_str[0], CultureInfo.InvariantCulture);
+                    texcoord.y = double.Parse(texcoord_str[1], CultureInfo.InvariantCulture);
 
                     objFile.texcoords.Add(texcoord);
                 }
@@ -136,9 +137,9 @@ namespace Physics_Simulation
                 if (normal_str.Count == 3 || (normal_str.Count == 4 && normal_str[3] != ""))
                 {
                     Vector3 normal = new Vector3();
-                    normal.x = Convert.ToDouble(normal_str[0]);
-                    normal.y = Convert.ToDouble(normal_str[1]);
-                    normal.z = Convert.ToDouble(normal_str[2]);
+                    normal.x = double.Parse(normal_str[0], CultureInfo.InvariantCulture);
+                    normal.y = double.Parse(normal_str[1], CultureInfo.InvariantCulture);
+                    normal.z = double.Parse(normal_str[2], CultureInfo.InvariantCulture);
 
                     objFile.normals.Add(normal);
                 }
