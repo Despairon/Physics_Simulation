@@ -16,16 +16,7 @@ namespace Physics_Simulation
         {
             inputManager = new InputManager(renderWindow as Control);
 
-            if (Render.init(ref renderWindow))
-            {
-                // set render configuration
-                Render.userConfiguration.FPS                    = 100;
-                Render.userConfiguration.backgroundColor        = Color.Gray;
-                Render.userConfiguration.backGroundImageFormat  = ".jpg";
-                Render.userConfiguration.backgroundCubemapImage = "Textures/Cubemap/earth";
-                Render.userConfiguration.cameraSpeed            = 4;
-            }
-            else
+            if (!Render.init(ref renderWindow))
                 MessageBox.Show("already initialized or error occured");
 
             var obj = RenderObject.loadObjectFromFile("Objects/teapot.obj");

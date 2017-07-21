@@ -7,6 +7,7 @@ using System;
 using System.Windows.Forms;
 using System.Drawing;
 using System.Diagnostics;
+using System.IO;
 
 namespace Physics_Simulation
 {
@@ -256,90 +257,6 @@ namespace Physics_Simulation
             {
                 Gl.glUseProgram(shader.id);
 
-                int coords_attribute = Gl.glGetAttribLocation(shader.id, "coords");
-                int color_attribute  = Gl.glGetAttribLocation(shader.id, "color_seed_in");
-                int matrix_uniform   = Gl.glGetUniformLocation(shader.id,  "view");
-
-                int coords_buffer;
-                int color_buffer;
-                int index_buffer;
-
-                float color_r = 0.3f;//(float)Math.Sin((double)DateTime.Now.Millisecond)   * 0.367f; // TODO: uncomment when shaders are working
-                float color_g = 0.5f;//((float)Math.Sin((double)DateTime.Now.Millisecond)) * 0.760f;
-                float color_b = 0.2f;//((float)Math.Sin((double)DateTime.Now.Millisecond)) * 1.500f;
-
-                float[,] vertices = new float[,]
-                {
-                    { -1.0f, -1.0f, -1.0f },
-                    {  1.0f, -1.0f, -1.0f },
-                    {  1.0f,  1.0f, -1.0f },
-                    { -1.0f,  1.0f, -1.0f }
-                };
-
-                float[,] colors = new float[,]
-                {
-                    { color_r, color_g, color_b },
-                    { color_g, color_b, color_r },
-                    { color_b, color_g, color_r },
-                    { color_b, color_g, color_r }
-                };
-
-                int[] indices = new int[]
-                {
-                    0, 1, 3,
-                    2, 3, 1
-                };
-
-                Gl.glGenBuffers(1, out coords_buffer);
-                Gl.glBindBuffer(Gl.GL_ARRAY_BUFFER, coords_buffer);
-                Gl.glBufferData(Gl.GL_ARRAY_BUFFER, new IntPtr(vertices.Length), vertices,Gl.GL_STATIC_DRAW);
-
-                Gl.glGenBuffers(1, out color_buffer);
-                Gl.glBindBuffer(Gl.GL_ARRAY_BUFFER, color_buffer);
-                Gl.glBufferData(Gl.GL_ARRAY_BUFFER, new IntPtr(vertices.Length * sizeof(float) * 3), colors, Gl.GL_STATIC_DRAW);
-
-                Gl.glGenBuffers(1, out index_buffer);
-                Gl.glBindBuffer(Gl.GL_ELEMENT_ARRAY_BUFFER, index_buffer);
-                Gl.glBufferData(Gl.GL_ELEMENT_ARRAY_BUFFER, new IntPtr(indices.Length * sizeof(int)), indices , Gl.GL_STATIC_DRAW);
-                
-                Gl.glPushMatrix();
-
-                float angle = (float)Stopwatch.GetTimestamp() / 100000.0f;
-                Gl.glTranslated(0, 0, -3);
-                Gl.glRotated(angle, 0, 1, 0);
-                
-                float[] view_matrix = new float[16];
-                Gl.glGetFloatv(Gl.GL_MODELVIEW_MATRIX,view_matrix);
-                Gl.glUniformMatrix4fv(matrix_uniform,1,Gl.GL_FALSE,view_matrix);
-
-                Gl.glPopMatrix();
-
-                Gl.glBindBuffer(Gl.GL_ELEMENT_ARRAY_BUFFER, index_buffer);
-                
-                Gl.glEnableVertexAttribArray(coords_attribute);
-                Gl.glBindBuffer(Gl.GL_ARRAY_BUFFER, coords_buffer);
-                Gl.glVertexAttribPointer(coords_attribute, 3, Gl.GL_FLOAT, Gl.GL_FALSE, 0, IntPtr.Zero);
-
-                Gl.glEnableVertexAttribArray(color_attribute);
-                Gl.glBindBuffer(Gl.GL_ARRAY_BUFFER, color_buffer);
-                Gl.glVertexAttribPointer(color_attribute, 3, Gl.GL_FLOAT, Gl.GL_FALSE, 0, IntPtr.Zero);
-
-                Gl.glBindBuffer(Gl.GL_ELEMENT_ARRAY_BUFFER, index_buffer);
-                
-                // TODO: delete and uncomment below
-                // Gl.glDrawElements(Gl.GL_TRIANGLES, indices.Length, Gl.GL_UNSIGNED_INT, IntPtr.Zero);
-
-                Gl.glDisableVertexAttribArray(coords_attribute);
-
-                Gl.glDisableVertexAttribArray(color_attribute);
-
-                Gl.glBindBuffer(Gl.GL_ARRAY_BUFFER, 0);
-                Gl.glBindBuffer(Gl.GL_ELEMENT_ARRAY_BUFFER, 0);
-
-                Gl.glDeleteBuffers(1, ref coords_buffer);
-                Gl.glDeleteBuffers(1, ref color_buffer);
-                Gl.glDeleteBuffers(1, ref index_buffer);
-
                 if (shader.id != -1)
                     Gl.glUseProgram(0);
 
@@ -364,106 +281,213 @@ namespace Physics_Simulation
 
         #region public_members
 
-        public static UserConfiguration userConfiguration = new UserConfiguration();
+        public static UserConfiguration userConfiguration;
 
-        public struct UserConfiguration
+        public class UserConfiguration
         {
             #region private_members
 
-            private int    _FPS;
-            private Color  _backgroundColor;
-            private string _backgroundCubemapImage;
-            private string _backGroundImageFormat;
-            private string _message;
-            private double _cameraSpeed;
-            private uint  _physicsIterations;
+            private class Cfg_param_table_item
+            {
+                public Cfg_param_table_item(string name, object value, Type type, Configuration_parameter param)
+                {
+                    this.name  = name;
+                    this.value = value;
+                    this.type  = type;
+                    this.param = param;
+                }
+
+                public string                  name;
+                public object                  value;
+                public Type                    type;
+                public Configuration_parameter param;
+            }
+
+            private List<Cfg_param_table_item> cfg_param_table;
+
+            private object getParam(Configuration_parameter param)
+            {
+                return cfg_param_table.Find(p => p.param == param).value;
+            }
+
+            private void setParam(object value, Configuration_parameter param)
+            {
+                var p = cfg_param_table.Find(_p => _p.param == param);
+
+                if (p != null)
+                    p.value = value;
+            }
+
+            private void readParam(string line)
+            {
+                for (int i = 0; i < cfg_param_table.Count; i++)
+                {
+                    if (line.Contains(cfg_param_table[i].name))
+                    {
+                        string varStr = line.Substring(line.IndexOf('=')).Trim('=').TrimStart().TrimEnd();
+
+                        object convertedVar = Convert.ChangeType(varStr, cfg_param_table[i].type);
+
+                        cfg_param_table[i].value = convertedVar;
+
+                        break;
+                    }
+                }
+            }
+
+            private void setDefaultConfiguration()
+            {
+                FPS = 100;
+
+                cameraSpeed = 4;
+
+                backgroundColor = Color.Black;
+
+                backGroundImageFormat = ".jpg";
+                backgroundCubemapImage = "Textures/Cubemap/earth";
+
+
+                // TODO: switch _message and set to appropriate string
+                message = "FPS: " + FPS.ToString();
+
+                physicsIterations = 1;
+            }
 
             #endregion
 
             #region public_members
 
-            public void setDefaultConfiguration()
+            public enum Configuration_parameter
             {
-                _FPS = 100;
+                CFG_FPS,
+                CFG_BACKGROUND_COLOR,
+                CFG_BACKGROUND_CUBEMAP_IMAGE,
+                CFG_BACKGROUND_IMAGE_FORMAT,
+                CFG_MESSAGE,
+                CFG_CAMERA_SPEED,
+                CFG_PHYSICS_ITERATIONS
+            }
 
-                _cameraSpeed = 4;
+            public UserConfiguration()
+            {
+                cfg_param_table = new List<Cfg_param_table_item>()
+                {
+                    new Cfg_param_table_item( "FPS"                   , new object() , typeof(int)    , Configuration_parameter.CFG_FPS                      ),
+                    new Cfg_param_table_item( "backgroundColor"       , new object() , typeof(int)    , Configuration_parameter.CFG_BACKGROUND_COLOR         ),
+                    new Cfg_param_table_item( "backgroundCubemapImage", new object() , typeof(string) , Configuration_parameter.CFG_BACKGROUND_CUBEMAP_IMAGE ),
+                    new Cfg_param_table_item( "backGroundImageFormat" , new object() , typeof(string) , Configuration_parameter.CFG_BACKGROUND_IMAGE_FORMAT  ),
+                    new Cfg_param_table_item( "message"               , new object() , typeof(string) , Configuration_parameter.CFG_MESSAGE                  ),
+                    new Cfg_param_table_item( "cameraSpeed"           , new object() , typeof(double) , Configuration_parameter.CFG_CAMERA_SPEED             ),
+                    new Cfg_param_table_item( "physicsIterations"     , new object() , typeof(uint)   , Configuration_parameter.CFG_PHYSICS_ITERATIONS       )
+                };
+            }
 
-                _backgroundColor = Color.Gray;
-                float r = (float)_backgroundColor.R / 256;
-                float g = (float)_backgroundColor.G / 256;
-                float b = (float)_backgroundColor.B / 256;
-                Gl.glClearColor(r, g, b, 1);
+            public void readCfgFromFile()
+            {
+                const string CFG_FILENAME = "config.cfg";
+                const string CFG_VARIABLE_PREFIX = "var ";
 
-                _backGroundImageFormat  = ".jpg";
-                _backgroundCubemapImage = "Textures/Cubemap/earth";
-                
+                var fs = new FileStream(CFG_FILENAME, FileMode.Open);
+                var sr = new StreamReader(fs);
 
-                _message = "FPS: " + FPS.ToString();
+                try
+                {
+                    while (!sr.EndOfStream)
+                    {
+                        var line = sr.ReadLine();
+
+                        if (line.Contains(CFG_VARIABLE_PREFIX))
+                        {
+                            readParam(line);
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    setDefaultConfiguration();
+                }
+
+                sr.Close();
+                fs.Close();
+
+                FPS                    = (int)                getParam(Configuration_parameter.CFG_FPS);
+                backgroundColor        = Color.FromArgb((int) getParam(Configuration_parameter.CFG_BACKGROUND_COLOR));
+                backgroundCubemapImage = (string)             getParam(Configuration_parameter.CFG_BACKGROUND_CUBEMAP_IMAGE);
+                backGroundImageFormat  = (string)             getParam(Configuration_parameter.CFG_BACKGROUND_IMAGE_FORMAT);
+                message                = (string)             getParam(Configuration_parameter.CFG_MESSAGE);
+                cameraSpeed            = (double)             getParam(Configuration_parameter.CFG_CAMERA_SPEED);
+                physicsIterations      = (uint)               getParam(Configuration_parameter.CFG_PHYSICS_ITERATIONS);
+
+                // add setters here to apply configuration
             }
 
             public Color backgroundColor
             {
-                get { return _backgroundColor; }
+                get
+                {
+                    var bgColor = (int)getParam(Configuration_parameter.CFG_BACKGROUND_COLOR);
+                    return Color.FromArgb(bgColor);
+                }
                 set
                 {
                     float r = (float)value.R / 256;
                     float g = (float)value.G / 256;
                     float b = (float)value.B / 256;
                     Gl.glClearColor(r, g, b, 1);
-                    _backgroundColor = value;
+                    setParam(value.ToArgb(),Configuration_parameter.CFG_BACKGROUND_COLOR);
                 }
             }
 
             public int FPS
             {
-                get { return _FPS; }
+                get { return (int)getParam(Configuration_parameter.CFG_FPS); }
                 set
                 {
                     const int MILLISEC_IN_SEC = 1000;
                     drawingTimer.Interval = MILLISEC_IN_SEC / value;
-                    _FPS = value;
+                    setParam(value, Configuration_parameter.CFG_FPS);
                 }
             }
 
             public string backgroundCubemapImage
             {
-                get { return _backgroundCubemapImage; }
+                get { return (string)getParam(Configuration_parameter.CFG_BACKGROUND_CUBEMAP_IMAGE); }
                 set
                 {
                     try
                     {
-                        _backgroundCubemapImage = value;
+                        setParam(value, Configuration_parameter.CFG_BACKGROUND_CUBEMAP_IMAGE);
                         cubemap = new Cubemap(-1, -1, -1, -1, -1, -1);
                     }
                     catch (Exception)
                     {
-                        
+
                     }
                 }
             }
 
             public string backGroundImageFormat
             {
-                get { return _backGroundImageFormat;  }
-                set { _backGroundImageFormat = value; }
+                get { return (string)getParam(Configuration_parameter.CFG_BACKGROUND_IMAGE_FORMAT); }
+                set { setParam(value, Configuration_parameter.CFG_BACKGROUND_IMAGE_FORMAT); }
             }
 
             public string message
             {
-                get { return _message;  }
-                set { _message = value; }
+                get { return (string)getParam(Configuration_parameter.CFG_MESSAGE); }
+                set { setParam(value, Configuration_parameter.CFG_MESSAGE); }
             }
 
             public double cameraSpeed
             {
-                get { return _cameraSpeed;  }
-                set { _cameraSpeed = value; }
+                get { return (double)getParam(Configuration_parameter.CFG_CAMERA_SPEED); }
+                set { setParam(value, Configuration_parameter.CFG_CAMERA_SPEED); }
             }
 
             public uint physicsIterations
             {
-                get { return _physicsIterations;  }
-                set { _physicsIterations = value; }
+                get { return (uint)getParam(Configuration_parameter.CFG_PHYSICS_ITERATIONS); }
+                set { setParam(value, Configuration_parameter.CFG_PHYSICS_ITERATIONS); }
             }
 
             #endregion
@@ -481,7 +505,9 @@ namespace Physics_Simulation
                     graphics.InitializeContexts();
 
                     camera = new Camera(new Rectangle(graphics.PointToScreen(Point.Empty), graphics.Size));
-                    
+
+                    userConfiguration = new UserConfiguration();
+
                     Glut.glutInit();
                     Glut.glutInitDisplayMode(Glut.GLUT_RGB | Glut.GLUT_DOUBLE | Glut.GLUT_DEPTH);
                     Il.ilInit();
@@ -495,7 +521,7 @@ namespace Physics_Simulation
                     Gl.glEnable(Gl.GL_DEPTH_TEST);
                     Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);
 
-                    userConfiguration.setDefaultConfiguration();
+                    userConfiguration.readCfgFromFile();
 
                     drawingTimer.Interval = 1000 / userConfiguration.FPS;
                     drawingTimer.Tick += new EventHandler(drawAll);
