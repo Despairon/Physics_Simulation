@@ -74,6 +74,8 @@
     <Compile Include="RenderObject.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="ShaderManager.cs" />
+    <Compile Include="VAO.cs" />
+    <Compile Include="VBO.cs" />
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
