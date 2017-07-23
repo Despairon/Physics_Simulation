@@ -249,10 +249,10 @@ namespace Physics_Simulation
 
                 Primitives_type type = Primitives_type.TRIANGLES;
 
-                if (objFile.meshes.Exists(mesh => (mesh.faces.Exists(face => face.vertex_indices.Length == 3))))
-                    type = Primitives_type.TRIANGLES;
-                else if (objFile.meshes.Exists(mesh => (mesh.faces.Exists(face => face.vertex_indices.Length > 3))))
+                if (objFile.meshes.Exists(mesh => (mesh.faces.Exists(face => face.vertex_indices.Length > 3))))
                     type = Primitives_type.POLYGON;
+                else if (objFile.meshes.Exists(mesh => (mesh.faces.Exists(face => face.vertex_indices.Length == 3))))
+                    type = Primitives_type.TRIANGLES;
                 else
                     type = Primitives_type.POINTS;
 
