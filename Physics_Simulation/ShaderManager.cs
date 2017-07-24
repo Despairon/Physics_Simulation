@@ -164,7 +164,7 @@ namespace Physics_Simulation
 
         public static ShaderProgram getShader(string shaderName)
         {
-            return shaders.Find(shader => shader.name == shaderName);
+            return shaders.Find(shader => shader.name.Contains(shaderName));
         }
 
         public static string[] getShadersList()
