@@ -252,6 +252,7 @@ namespace Physics_Simulation
             /*****************************TODO: debug, delete*************************************/
 
             var shader = ShaderManager.getShader("Cubemap");
+
             if (shader.id != -1)
             {
                 Gl.glUseProgram(shader.id);
@@ -396,9 +397,7 @@ namespace Physics_Simulation
                         var line = sr.ReadLine();
 
                         if (line.Contains(CFG_VARIABLE_PREFIX))
-                        {
                             readParam(line);
-                        }
                     }
                 }
                 catch (Exception)
@@ -521,7 +520,7 @@ namespace Physics_Simulation
                     Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);
 
                     userConfiguration.readCfgFromFile();
-
+                    
                     drawingTimer.Interval = 1000 / userConfiguration.FPS;
                     drawingTimer.Tick += new EventHandler(drawAll);
                     drawingTimer.Start();
@@ -573,67 +572,31 @@ namespace Physics_Simulation
         public static void test(double x, double y, double z, double rx, double ry, double rz, double sx, double sy, double sz)
         {
             /*************************TODO: START TEST*******************************/
-            System.Collections.Generic.List<Triangle> triangles = new System.Collections.Generic.List<Triangle>();
+            System.Collections.Generic.List<Vector3> vertices = new System.Collections.Generic.List<Vector3>();
 
-            triangles.Add
-            (
-                new Triangle
-                (
-                    new Vector3(0, 0, 0),
-                    new Vector3(-1, -1, 1),
-                    new Vector3(-1, -1, -1)
-                )
-            );
+            vertices.Add(new Vector3(0, 0, 0));
+            vertices.Add(new Vector3(-1, -1, 1));
+            vertices.Add(new Vector3(-1, -1, -1));
 
-            triangles.Add
-            (
-                new Triangle
-                (
-                    new Vector3(0, 0, 0),
-                    new Vector3(-1, -1, -1),
-                    new Vector3(1, -1, -1)
-                )
-            );
+            vertices.Add(new Vector3(0, 0, 0));
+            vertices.Add(new Vector3(-1, -1, -1));
+            vertices.Add(new Vector3(1, -1, -1));
+                    
+            vertices.Add(new Vector3(0, 0, 0));
+            vertices.Add(new Vector3(1, -1, -1));
+            vertices.Add(new Vector3(1, -1, 1));
 
-            triangles.Add
-            (
-                new Triangle
-                (
-                    new Vector3(0, 0, 0),
-                    new Vector3(1, -1, -1),
-                    new Vector3(1, -1, 1)
-                )
-            );
+            vertices.Add(new Vector3(0, 0, 0));
+            vertices.Add(new Vector3(-1, -1, 1));
+            vertices.Add(new Vector3(1, -1, 1));
 
-            triangles.Add
-            (
-                new Triangle
-                (
-                    new Vector3(0, 0, 0),
-                    new Vector3(-1, -1, 1),
-                    new Vector3(1, -1, 1)
-                )
-            );
+            vertices.Add(new Vector3(-1, -1, 1));
+            vertices.Add(new Vector3(1, -1, -1));
+            vertices.Add(new Vector3(1, -1, 1));
 
-            triangles.Add
-            (
-                new Triangle
-                (
-                    new Vector3(-1, -1, 1),
-                    new Vector3(1, -1, -1),
-                    new Vector3(1, -1, 1)
-                )
-            );
-
-            triangles.Add
-            (
-                new Triangle
-                (
-                    new Vector3(1, -1, -1),
-                    new Vector3(-1, -1, -1),
-                    new Vector3(-1, -1, 1)
-                )
-            );
+            vertices.Add(new Vector3(1, -1, -1));
+            vertices.Add(new Vector3(-1, -1, -1));
+            vertices.Add(new Vector3(-1, -1, 1));
 
             Random rnd = new Random(DateTime.Now.Millisecond);
             int r = (int)(rnd.NextDouble() * 0xFF);
@@ -642,7 +605,7 @@ namespace Physics_Simulation
 
             Color c = Color.FromArgb(r,g,b);
 
-            RenderObject obj = new RenderObject("triangle", triangles, c);
+            RenderObject obj = new RenderObject("triangle", vertices, null, null, c, RenderObject.Primitives_type.TRIANGLES);
             obj.scale(sx, sy, sz);
             obj.translate(x,y,z);
             obj.rotate(rx, ry, rz);

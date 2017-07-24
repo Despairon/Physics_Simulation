@@ -46,14 +46,20 @@
     <Reference Include="System.Xml" />
     <Reference Include="Tao.DevIl, Version=1.6.8.3, Culture=neutral, PublicKeyToken=7ec4053013524957, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\TaoFramework\bin\Tao.DevIl.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\TaoFramework\bin\Tao.DevIl.dll</HintPath>
     </Reference>
     <Reference Include="Tao.FreeGlut, Version=2.4.0.2, Culture=neutral, PublicKeyToken=6e602a6ad6c0d06d, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\TaoFramework\bin\Tao.FreeGlut.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\TaoFramework\bin\Tao.FreeGlut.dll</HintPath>
     </Reference>
-    <Reference Include="Tao.OpenGl, Version=2.1.0.12, Culture=neutral, PublicKeyToken=1ca010269a4501ef" />
-    <Reference Include="Tao.Platform.Windows, Version=1.0.0.5, Culture=neutral, PublicKeyToken=701104b2da67a104" />
+    <Reference Include="Tao.OpenGl, Version=2.1.0.12, Culture=neutral, PublicKeyToken=1ca010269a4501ef, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\TaoFramework\bin\Tao.OpenGl.dll</HintPath>
+    </Reference>
+    <Reference Include="Tao.Platform.Windows, Version=1.0.0.5, Culture=neutral, PublicKeyToken=701104b2da67a104, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\TaoFramework\bin\Tao.Platform.Windows.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Camera.cs" />
@@ -74,6 +80,8 @@
     <Compile Include="RenderObject.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="ShaderManager.cs" />
+    <Compile Include="VAO.cs" />
+    <Compile Include="VBO.cs" />
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
