@@ -12,6 +12,16 @@ namespace Physics_Simulation
 
         public double x;
         public double y;
+
+        public float[] toFloat()
+        {
+            float[] vector_data = new float[2];
+
+            vector_data[0] = (float)x;
+            vector_data[1] = (float)y;
+
+            return vector_data;
+        }
     }
         public struct Vector3
     {
@@ -25,6 +35,17 @@ namespace Physics_Simulation
         public double x;
         public double y;
         public double z;
+
+        public float[] toFloat()
+        {
+            float[] vector_data = new float[3];
+
+            vector_data[0] = (float)x;
+            vector_data[1] = (float)y;
+            vector_data[2] = (float)z;
+
+            return vector_data;
+        }
 
         // Vector product
         public static Vector3 operator *(Vector3 left, Vector3 right)

@@ -120,24 +120,17 @@ namespace Physics_Simulation
             _vao = new VAO();
             _vao.bind();
 
-            // TODO: try to refactor this implemetation. Seems to be bad.
+            
             int vbo_index = 0;
 
             if (_vertices != null)
             {
-                float[] vertices_data = new float[_vertices.Count * 3];
+                List<float> vertices_data = new List<float>();
 
-                int i = 0;
                 foreach (var vertex in _vertices)
-                {
-                    vertices_data[i]     = (float)vertex.x;
-                    vertices_data[i + 1] = (float)vertex.y;
-                    vertices_data[i + 2] = (float)vertex.z;
+                    vertices_data.AddRange(vertex.toFloat());
 
-                    i += 3;
-                }
-
-                VBO vertex_VBO = new VBO(vbo_index, VBO.VBO_Type.ARRAY_BUFFER, vertices_data, VBO.VBO_Elements_per_vertex.THREE_ELEMENTS);
+                VBO vertex_VBO = new VBO(vbo_index, VBO.VBO_Type.ARRAY_BUFFER, vertices_data.ToArray(), VBO.VBO_Elements_per_vertex.THREE_ELEMENTS);
 
                 _vao.add_VBO(vertex_VBO);
 
@@ -146,18 +139,12 @@ namespace Physics_Simulation
 
             if (_texcoords != null)
             {
-                float[] texcoord_data = new float[_texcoords.Count * 2];
+                List<float> texcoord_data = new List<float>();
 
-                int i = 0;
                 foreach (var texcoord in _texcoords)
-                {
-                    texcoord_data[i]     = (float)texcoord.x;
-                    texcoord_data[i + 1] = (float)texcoord.y;
+                    texcoord_data.AddRange(texcoord.toFloat());
 
-                    i += 2;
-                }
-
-                VBO texcoords_VBO = new VBO(vbo_index, VBO.VBO_Type.ARRAY_BUFFER, texcoord_data, VBO.VBO_Elements_per_vertex.TWO_ELEMENTS);
+                VBO texcoords_VBO = new VBO(vbo_index, VBO.VBO_Type.ARRAY_BUFFER, texcoord_data.ToArray(), VBO.VBO_Elements_per_vertex.TWO_ELEMENTS);
 
                 _vao.add_VBO(texcoords_VBO);
 
@@ -166,19 +153,12 @@ namespace Physics_Simulation
 
             if (_normals != null)
             {
-                float[] normal_data = new float[_normals.Count * 3];
+                List<float> normal_data = new List<float>();
 
-                int i = 0;
                 foreach (var normal in _normals)
-                {
-                    normal_data[i]     = (float)normal.x;
-                    normal_data[i + 1] = (float)normal.y;
-                    normal_data[i + 2] = (float)normal.z;
+                    normal_data.AddRange(normal.toFloat());
 
-                    i += 3;
-                }
-
-                VBO normals_VBO = new VBO(vbo_index, VBO.VBO_Type.ARRAY_BUFFER, normal_data, VBO.VBO_Elements_per_vertex.THREE_ELEMENTS);
+                VBO normals_VBO = new VBO(vbo_index, VBO.VBO_Type.ARRAY_BUFFER, normal_data.ToArray(), VBO.VBO_Elements_per_vertex.THREE_ELEMENTS);
 
                 _vao.add_VBO(normals_VBO);
 
