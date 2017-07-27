@@ -8,6 +8,7 @@ using Tao.FreeGlut;
 using Tao.Platform.Windows;
 using Tao.DevIl;
 using System.Drawing;
+using System.IO;
 
 namespace Physics_Simulation
 {
@@ -68,6 +69,8 @@ namespace Physics_Simulation
         private Transform       _transform;
         private string          _name;
         private Primitives_type _type;
+
+        private static List<RenderObject> preloadedObjects = new List<RenderObject>();
 
         #endregion
 
@@ -168,6 +171,11 @@ namespace Physics_Simulation
             _vao.unbind();
         }
 
+        public RenderObject getClone()
+        {
+            return new RenderObject(name, _vertices, _texcoords, _normals, color, type);
+        }
+
         public void draw()
         {
             Render.setColor(color);
@@ -186,6 +194,18 @@ namespace Physics_Simulation
 
             _vao.bind();
                 _vao.enable(0);
+
+                    int proj_uni = Gl.glGetUniformLocation(ShaderManager.getShader("Default").id, "projection");
+                    int view_uni = Gl.glGetUniformLocation(ShaderManager.getShader("Default").id, "view");
+
+                    float[] projection = new float[4*4];
+                    float[] view       = new float[4*4];
+
+                    Gl.glGetFloatv(Gl.GL_PROJECTION_MATRIX, projection);
+                    Gl.glGetFloatv(Gl.GL_MODELVIEW_MATRIX,  view);
+                    
+                    Gl.glUniformMatrix4fv(proj_uni, 1, 0, projection);
+                    Gl.glUniformMatrix4fv(view_uni, 1, 0, view);
 
                     Gl.glDrawArrays(Gl.GL_TRIANGLES, 0, _vertices.Count);
 
@@ -268,8 +288,21 @@ namespace Physics_Simulation
                 var obj = new RenderObject(name, vertices, texcoords, normals, c, type);
 
                 return obj;
+            }           
+        }
+
+        public static void preloadObjects()
+        {
+            if (Directory.Exists("Objects"))
+            {
+                foreach (var file in Directory.GetFiles("Objects", "*.obj"))
+                    preloadedObjects.Add(loadObjectFromFile(file));
             }
-            
+        }
+
+        public static RenderObject getPreloadedObject(string name)
+        {
+            return preloadedObjects.Find(obj => obj.name == name).getClone();
         }
 
         #endregion

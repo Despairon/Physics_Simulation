@@ -281,8 +281,12 @@ namespace Physics_Simulation
 
                             while (!objFile.eof)
                                 execute_fsm(objFile);
+
+                            sr.Close();
                         }
                     }
+
+                    fs.Close();
                 }
 
                 changeGlobalState(Global_State.IDLE);

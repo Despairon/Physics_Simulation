@@ -239,37 +239,39 @@ namespace Physics_Simulation
 
         private static void drawAll(object sender, EventArgs e)
         {
+            var cubemap_shader = ShaderManager.getShader("Cubemap");
+            var default_shader = ShaderManager.getShader("Default");
+
             Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);
 
             Gl.glLoadIdentity();
 
             camera.renderCamera();
 
+            //if (cubemap_shader.id != -1)
+            //    Gl.glUseProgram(cubemap_shader.id);
+
             drawCubemap();
 
+            //if (cubemap_shader.id != -1)
+            //    Gl.glUseProgram(0);
+
             renderText();
-
-            /*****************************TODO: debug, delete*************************************/
-
-            var shader = ShaderManager.getShader("Cubemap");
-
-            if (shader.id != -1)
-            {
-                Gl.glUseProgram(shader.id);
-
-                if (shader.id != -1)
-                    Gl.glUseProgram(0);
-
-            }
-
-            /****************************END TEST*************************************/
 
             //foreach (var obj in objects.FindAll(_obj => _obj is PhysicalObject))
             //    for (uint i = 0; i < userConfiguration.physicsIterations; i++)
             //        (obj as PhysicalObject).calculate_physics();
 
             foreach (var obj in objects)
+            {
+                if (default_shader.id != -1)
+                    Gl.glUseProgram(default_shader.id);
+
                 obj.draw();
+
+                if (default_shader.id != -1)
+                    Gl.glUseProgram(0);
+            }
             
             Gl.glFlush();
 
@@ -520,7 +522,9 @@ namespace Physics_Simulation
                     Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);
 
                     userConfiguration.readCfgFromFile();
-                    
+
+                    RenderObject.preloadObjects();
+
                     drawingTimer.Interval = 1000 / userConfiguration.FPS;
                     drawingTimer.Tick += new EventHandler(drawAll);
                     drawingTimer.Start();
@@ -554,7 +558,7 @@ namespace Physics_Simulation
         }
 
         public static void instantiateObject(RenderObject obj)
-        {
+        {  
             objects.Add(obj);
         }
 
@@ -574,30 +578,6 @@ namespace Physics_Simulation
             /*************************TODO: START TEST*******************************/
             System.Collections.Generic.List<Vector3> vertices = new System.Collections.Generic.List<Vector3>();
 
-            vertices.Add(new Vector3(0, 0, 0));
-            vertices.Add(new Vector3(-1, -1, 1));
-            vertices.Add(new Vector3(-1, -1, -1));
-
-            vertices.Add(new Vector3(0, 0, 0));
-            vertices.Add(new Vector3(-1, -1, -1));
-            vertices.Add(new Vector3(1, -1, -1));
-                    
-            vertices.Add(new Vector3(0, 0, 0));
-            vertices.Add(new Vector3(1, -1, -1));
-            vertices.Add(new Vector3(1, -1, 1));
-
-            vertices.Add(new Vector3(0, 0, 0));
-            vertices.Add(new Vector3(-1, -1, 1));
-            vertices.Add(new Vector3(1, -1, 1));
-
-            vertices.Add(new Vector3(-1, -1, 1));
-            vertices.Add(new Vector3(1, -1, -1));
-            vertices.Add(new Vector3(1, -1, 1));
-
-            vertices.Add(new Vector3(1, -1, -1));
-            vertices.Add(new Vector3(-1, -1, -1));
-            vertices.Add(new Vector3(-1, -1, 1));
-
             Random rnd = new Random(DateTime.Now.Millisecond);
             int r = (int)(rnd.NextDouble() * 0xFF);
             int g = (int)(rnd.NextDouble() * 0xFF);
@@ -605,7 +585,8 @@ namespace Physics_Simulation
 
             Color c = Color.FromArgb(r,g,b);
 
-            RenderObject obj = new RenderObject("triangle", vertices, null, null, c, RenderObject.Primitives_type.TRIANGLES);
+            var obj = RenderObject.getPreloadedObject("Objects\\sphere.obj");
+
             obj.scale(sx, sy, sz);
             obj.translate(x,y,z);
             obj.rotate(rx, ry, rz);
