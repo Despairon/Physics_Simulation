@@ -1,15 +1,13 @@
-#version 140 core
+#version 450 core
 
-in vec3 _vertex;
-in vec2 _texcoord;
-in vec3 _normal;
-in vec3 _color;
-/*
+layout (location = 0) in vec3 _vertex;
+layout (location = 1) in vec2 _texcoord;
+layout (location = 2) in vec3 _normal;
+
 out vec2 texcoord;
 out vec3 normal;
+
 out vec3 color;
-*/
-out vec4 pos;
 
 uniform mat4 view;
 uniform mat4 projection;
@@ -18,9 +16,8 @@ void main(void)
 {
     gl_Position =  projection * view * vec4(_vertex, 1.0);  
 	
-	pos = gl_Position;
+	color = _vertex;
 	
-	/*texcoord = _texcoord;
+	texcoord = _texcoord;
 	normal   = _normal;
-	color    = _color;*/
 }  

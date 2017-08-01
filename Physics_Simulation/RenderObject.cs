@@ -64,8 +64,8 @@ namespace Physics_Simulation
         private List<Vector3>   _vertices;
         private List<Vector2>   _texcoords;
         private List<Vector3>   _normals;
+        private List<int[]>     _faces;    
         private VAO             _vao;
-        private Color           _color;
         private Transform       _transform;
         private string          _name;
         private Primitives_type _type;
@@ -88,12 +88,6 @@ namespace Physics_Simulation
             POLYGON        = Gl.GL_POLYGON
         }
 
-        public Color color
-        {
-            get         { return _color;  }
-            private set { _color = value; }
-        }
-
         public string name
         {
             get         { return _name; }
@@ -106,7 +100,19 @@ namespace Physics_Simulation
             private set { _type = value; }
         }
 
-        public RenderObject(string name, List<Vector3> vertices, List<Vector2> texcoords, List<Vector3> normals, Color color, Primitives_type type)
+        public int[] indices
+        {
+            get
+            {
+                List<int> inds = new List<int>();
+
+                foreach (var face in _faces)
+                    inds.AddRange(face);
+                return inds.ToArray();
+            }
+        }
+
+        public RenderObject(string name, List<Vector3> vertices, List<Vector2> texcoords, List<Vector3> normals, List<int[]> faces, Primitives_type type)
         {
             this.name = name;
 
@@ -114,7 +120,7 @@ namespace Physics_Simulation
             _texcoords = texcoords;
             _normals   = normals;
 
-            this.color = color;
+            _faces = faces;
 
             this.type = type;
 
@@ -122,65 +128,65 @@ namespace Physics_Simulation
 
             _vao = new VAO();
             _vao.bind();
-
             
+            // TODO: try to find a different approach to this
             int vbo_index = 0;
 
-            if (_vertices != null)
+            if ((_vertices != null) && (_vertices.Count != 0))
             {
                 List<float> vertices_data = new List<float>();
 
                 foreach (var vertex in _vertices)
                     vertices_data.AddRange(vertex.toFloat());
 
-                VBO vertex_VBO = new VBO(vbo_index, VBO.VBO_Type.ARRAY_BUFFER, vertices_data.ToArray(), VBO.VBO_Elements_per_vertex.THREE_ELEMENTS);
-
-                _vao.add_VBO(vertex_VBO);
-
+                _vao.add_VBO(vbo_index, VBO.BufferType.ARRAY_BUFFER, VBO.BufferDataType.FLOAT, vertices_data.ToArray(), vertices_data.Count, VBO.BufferElementsPerVertex.THREE_ELEMENTS);
+                _vao.dataPointer(vbo_index, 0, IntPtr.Zero);
+                
                 vbo_index++;
             }
 
-            if (_texcoords != null)
+            if ((_texcoords != null) && (_texcoords.Count != 0))
             {
                 List<float> texcoord_data = new List<float>();
 
                 foreach (var texcoord in _texcoords)
                     texcoord_data.AddRange(texcoord.toFloat());
 
-                VBO texcoords_VBO = new VBO(vbo_index, VBO.VBO_Type.ARRAY_BUFFER, texcoord_data.ToArray(), VBO.VBO_Elements_per_vertex.TWO_ELEMENTS);
-
-                _vao.add_VBO(texcoords_VBO);
+                _vao.add_VBO(vbo_index, VBO.BufferType.ARRAY_BUFFER, VBO.BufferDataType.FLOAT, texcoord_data.ToArray(), texcoord_data.Count, VBO.BufferElementsPerVertex.TWO_ELEMENTS);
+                _vao.dataPointer(vbo_index, 0, IntPtr.Zero);
 
                 vbo_index++;
             }
 
-            if (_normals != null)
+            if ((_normals != null) && (_normals.Count != 0))
             {
                 List<float> normal_data = new List<float>();
 
                 foreach (var normal in _normals)
                     normal_data.AddRange(normal.toFloat());
 
-                VBO normals_VBO = new VBO(vbo_index, VBO.VBO_Type.ARRAY_BUFFER, normal_data.ToArray(), VBO.VBO_Elements_per_vertex.THREE_ELEMENTS);
-
-                _vao.add_VBO(normals_VBO);
+                _vao.add_VBO(vbo_index, VBO.BufferType.ARRAY_BUFFER, VBO.BufferDataType.FLOAT, normal_data.ToArray(), normal_data.Count, VBO.BufferElementsPerVertex.THREE_ELEMENTS);
+                _vao.dataPointer(vbo_index, 0, IntPtr.Zero);
 
                 vbo_index++;
             }
+            
+            if (_faces != null)
+                _vao.add_VBO(vbo_index, VBO.BufferType.ELEMENT_ARRAY_BUFFER, VBO.BufferDataType.UINT, indices, indices.Length, VBO.BufferElementsPerVertex.ONE_ELEMENT);
+
+            _vao.prepareIndicesFaces(faces);
 
             _vao.unbind();
         }
 
         public RenderObject getClone()
         {
-            return new RenderObject(name, _vertices, _texcoords, _normals, color, type);
+            return new RenderObject(name, _vertices, _texcoords, _normals, _faces, type);
         }
 
         public void draw()
         {
-            Render.setColor(color);
-
-            // TODO: maybe apply textures in future!
+            // TODO: apply textures in future!
 
             Gl.glPushMatrix();
 
@@ -192,25 +198,16 @@ namespace Physics_Simulation
 
             Gl.glScaled(_transform.scale.x, _transform.scale.y, _transform.scale.z );
 
-            _vao.bind();
-                _vao.enable(0);
+            int proj_uni      = Gl.glGetUniformLocation(ShaderManager.getShader("Default").id, "projection");
+            int view_uni      = Gl.glGetUniformLocation(ShaderManager.getShader("Default").id, "view");
 
-                    int proj_uni = Gl.glGetUniformLocation(ShaderManager.getShader("Default").id, "projection");
-                    int view_uni = Gl.glGetUniformLocation(ShaderManager.getShader("Default").id, "view");
+            float[] projection = Render.getProjectionMatrix();
+            float[] view       = Render.getModelViewMatrix();
 
-                    float[] projection = new float[4*4];
-                    float[] view       = new float[4*4];
+            Gl.glUniformMatrix4fv(proj_uni, 1, 0, projection);
+            Gl.glUniformMatrix4fv(view_uni, 1, 0, view);
 
-                    Gl.glGetFloatv(Gl.GL_PROJECTION_MATRIX, projection);
-                    Gl.glGetFloatv(Gl.GL_MODELVIEW_MATRIX,  view);
-                    
-                    Gl.glUniformMatrix4fv(proj_uni, 1, 0, projection);
-                    Gl.glUniformMatrix4fv(view_uni, 1, 0, view);
-
-                    Gl.glDrawArrays(Gl.GL_TRIANGLES, 0, _vertices.Count);
-
-                _vao.disable(0);
-            _vao.unbind();
+            _vao.draw(type);
 
             Gl.glPopMatrix();
         }
@@ -246,24 +243,22 @@ namespace Physics_Simulation
                 List<Vector3> vertices  = new List<Vector3>();
                 List<Vector2> texcoords = new List<Vector2>();
                 List<Vector3> normals   = new List<Vector3>();
+                List<int[]>   faces     = new List<int[]>();
 
-                Primitives_type type = Primitives_type.TRIANGLES;
+                Primitives_type type;
 
                 if (objFile.meshes.Exists(mesh => (mesh.faces.Exists(face => face.vertex_indices.Length > 3))))
-                    type = Primitives_type.POLYGON;
-                else if (objFile.meshes.Exists(mesh => (mesh.faces.Exists(face => face.vertex_indices.Length == 3))))
-                    type = Primitives_type.TRIANGLES;
+                    type = Primitives_type.TRIANGLE_FAN;
                 else
-                    type = Primitives_type.POINTS;
+                    type = Primitives_type.TRIANGLES;
 
                 foreach (var mesh in objFile.meshes)
                     foreach (var face in mesh.faces)
                     {
+                        List<int> f = new List<int>();
                         foreach (var vertex_index in face.vertex_indices)
-                        {
-                            var vertex = objFile.vertices[vertex_index - 1];
-                            vertices.Add(vertex);
-                        }
+                            f.Add(vertex_index - 1);
+                        faces.Add(f.ToArray());
 
                         foreach (var texcoord_index in face.texcoord_indices)
                         {
@@ -278,14 +273,7 @@ namespace Physics_Simulation
                         }
                     }
 
-                Random rnd = new Random(DateTime.Now.Millisecond);
-                int r = (int)(rnd.NextDouble() * 0xFF);
-                int g = (int)(rnd.NextDouble() * 0xFF);
-                int b = (int)(rnd.NextDouble() * 0xFF);
-
-                Color c = Color.FromArgb(r, g, b);
-
-                var obj = new RenderObject(name, vertices, texcoords, normals, c, type);
+                var obj = new RenderObject(name, objFile.vertices, texcoords, normals, faces, type);
 
                 return obj;
             }           

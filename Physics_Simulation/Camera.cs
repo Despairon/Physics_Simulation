@@ -236,6 +236,11 @@ namespace Physics_Simulation
             return position;
         }
 
+        public Vector3 getDirection()
+        {
+            return new Vector3(position.x + lookAt.x, position.y + lookAt.y, position.z + lookAt.z);
+        }
+
         #endregion
     }
 }

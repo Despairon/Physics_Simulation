@@ -594,6 +594,34 @@ namespace Physics_Simulation
 
             /**********************END TEST***********************/
         }
+        
+        public static float[] getModelViewMatrix()
+        {
+            float[] view = new float[4 * 4];
+
+            Gl.glGetFloatv(Gl.GL_MODELVIEW_MATRIX, view);
+            
+            return view;
+        }
+
+        public static float[] getProjectionMatrix()
+        {
+            float[] projection = new float[4 * 4];
+
+            Gl.glGetFloatv(Gl.GL_PROJECTION_MATRIX, projection);
+
+            return projection;
+        }
+
+        public static Vector3 getMainCameraLocation()
+        {
+            return camera.getPosition();
+        }
+
+        public static Vector3 getMainCameraDirection()
+        {
+            return camera.getDirection();
+        }
 
         #endregion
     }
