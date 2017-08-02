@@ -3,9 +3,9 @@
 in vec2 texcoord;
 in vec3 normal;
 
-in vec3 color;
+out vec4 color;
 
 void main()
-{    
-    gl_FragColor = vec4(color, 1.0f);
+{  
+    color = vec4(0.3,0.4,0.5, 1.0f);
 }

@@ -154,10 +154,32 @@ namespace Physics_Simulation
             public string       source;
         }
 
-        public struct ShaderProgram
+        public class ShaderProgram
         {
             public int    id;
             public string name;
+
+            public void use()
+            {
+                if (id != -1)
+                    Gl.glUseProgram(id);
+            }
+
+            public void unuse()
+            {
+                if (id != -1)
+                    Gl.glUseProgram(0);
+            }
+
+            public int getAttribute(string attr_name)
+            {
+                return Gl.glGetAttribLocation(id, attr_name);
+            }
+
+            public int getUniform(string uni_name)
+            {
+                return Gl.glGetUniformLocation(id, uni_name);
+            }
         }
 
         public static bool error { get; private set; } = false;

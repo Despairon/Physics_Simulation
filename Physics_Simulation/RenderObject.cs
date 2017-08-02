@@ -61,14 +61,15 @@ namespace Physics_Simulation
     {
         #region private_members
 
-        private List<Vector3>   _vertices;
-        private List<Vector2>   _texcoords;
-        private List<Vector3>   _normals;
-        private List<int[]>     _faces;    
-        private VAO             _vao;
-        private Transform       _transform;
-        private string          _name;
-        private Primitives_type _type;
+        private List<Vector3>               _vertices;
+        private List<Vector2>               _texcoords;
+        private List<Vector3>               _normals;
+        private List<int[]>                 _faces;    
+        private VAO                         _vao;
+        private Transform                   _transform;
+        private string                      _name;
+        private Primitives_type             _primitives_type;
+        private ShaderManager.ShaderProgram _shader;
 
         private static List<RenderObject> preloadedObjects = new List<RenderObject>();
 
@@ -94,10 +95,10 @@ namespace Physics_Simulation
             private set { _name = value; }
         }
 
-        public Primitives_type type
+        public Primitives_type primitives_type
         {
-            get         { return _type; }
-            private set { _type = value; }
+            get         { return _primitives_type; }
+            private set { _primitives_type = value; }
         }
 
         public int[] indices
@@ -112,7 +113,7 @@ namespace Physics_Simulation
             }
         }
 
-        public RenderObject(string name, List<Vector3> vertices, List<Vector2> texcoords, List<Vector3> normals, List<int[]> faces, Primitives_type type)
+        public RenderObject(string name, List<Vector3> vertices, List<Vector2> texcoords, List<Vector3> normals, List<int[]> faces, Primitives_type primitives_type)
         {
             this.name = name;
 
@@ -122,9 +123,11 @@ namespace Physics_Simulation
 
             _faces = faces;
 
-            this.type = type;
+            this.primitives_type = primitives_type;
 
             _transform = new Transform(0);
+
+            _shader = ShaderManager.getShader("Default");
 
             _vao = new VAO();
             _vao.bind();
@@ -181,12 +184,20 @@ namespace Physics_Simulation
 
         public RenderObject getClone()
         {
-            return new RenderObject(name, _vertices, _texcoords, _normals, _faces, type);
+            return new RenderObject(name, _vertices, _texcoords, _normals, _faces, primitives_type);
+        }
+
+        public void applyShader(ShaderManager.ShaderProgram shader)
+        {
+            if (shader != null)
+                _shader = shader;
         }
 
         public void draw()
         {
             // TODO: apply textures in future!
+
+            _shader.use();
 
             Gl.glPushMatrix();
 
@@ -198,18 +209,20 @@ namespace Physics_Simulation
 
             Gl.glScaled(_transform.scale.x, _transform.scale.y, _transform.scale.z );
 
-            int proj_uni      = Gl.glGetUniformLocation(ShaderManager.getShader("Default").id, "projection");
-            int view_uni      = Gl.glGetUniformLocation(ShaderManager.getShader("Default").id, "view");
+            int proj_uni = _shader.getUniform("projection");
+            int view_uni = _shader.getUniform("view");
 
             float[] projection = Render.getProjectionMatrix();
-            float[] view       = Render.getModelViewMatrix();
+            float[] view = Render.getModelViewMatrix();
 
             Gl.glUniformMatrix4fv(proj_uni, 1, 0, projection);
             Gl.glUniformMatrix4fv(view_uni, 1, 0, view);
 
-            _vao.draw(type);
+            _vao.draw(primitives_type);
 
             Gl.glPopMatrix();
+
+            _shader.unuse();
         }
 
         public void translate(double x, double y, double z)

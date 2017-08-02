@@ -248,13 +248,11 @@ namespace Physics_Simulation
 
             camera.renderCamera();
 
-            //if (cubemap_shader.id != -1)
-            //    Gl.glUseProgram(cubemap_shader.id);
+            //cubemap_shader.use();
 
             drawCubemap();
 
-            //if (cubemap_shader.id != -1)
-            //    Gl.glUseProgram(0);
+            //cubemap_shader.unuse();
 
             renderText();
 
@@ -264,13 +262,9 @@ namespace Physics_Simulation
 
             foreach (var obj in objects)
             {
-                if (default_shader.id != -1)
-                    Gl.glUseProgram(default_shader.id);
+                obj.applyShader(default_shader);
 
                 obj.draw();
-
-                if (default_shader.id != -1)
-                    Gl.glUseProgram(0);
             }
             
             Gl.glFlush();
@@ -523,14 +517,14 @@ namespace Physics_Simulation
 
                     userConfiguration.readCfgFromFile();
 
-                    RenderObject.preloadObjects();
-
                     drawingTimer.Interval = 1000 / userConfiguration.FPS;
                     drawingTimer.Tick += new EventHandler(drawAll);
                     drawingTimer.Start();
 
                     if (!initializeShaders())
                         throw new Exception();
+
+                    RenderObject.preloadObjects();
 
                     initialized = true;
                 }
@@ -557,22 +551,6 @@ namespace Physics_Simulation
             Gl.glLoadIdentity();
         }
 
-        public static void instantiateObject(RenderObject obj)
-        {  
-            objects.Add(obj);
-        }
-
-        public static RenderObject getObjectByName(string name)
-        {
-            return objects.Find(obj => obj.name == name);
-        }
-
-        public static void deleteObject(RenderObject obj)
-        {
-            if (objects.Contains(obj))
-                objects.Remove(obj);
-        }
-
         public static void test(double x, double y, double z, double rx, double ry, double rz, double sx, double sy, double sz)
         {
             /*************************TODO: START TEST*******************************/
@@ -594,7 +572,25 @@ namespace Physics_Simulation
 
             /**********************END TEST***********************/
         }
-        
+
+        #region engine_public_methods
+
+        public static void instantiateObject(RenderObject obj)
+        {
+            objects.Add(obj);
+        }
+
+        public static RenderObject getObjectByName(string name)
+        {
+            return objects.Find(obj => obj.name == name);
+        }
+
+        public static void deleteObject(RenderObject obj)
+        {
+            if (objects.Contains(obj))
+                objects.Remove(obj);
+        }
+
         public static float[] getModelViewMatrix()
         {
             float[] view = new float[4 * 4];
@@ -622,6 +618,8 @@ namespace Physics_Simulation
         {
             return camera.getDirection();
         }
+
+        #endregion
 
         #endregion
     }
