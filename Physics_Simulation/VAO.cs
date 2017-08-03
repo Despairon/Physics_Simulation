@@ -125,14 +125,20 @@ namespace Physics_Simulation
             
                 var ibo = _vbo_list.Find(buffer => buffer.type == VBO.BufferType.ELEMENT_ARRAY_BUFFER);
 
-                ibo.bind();
+                if (ibo != null)
+                {
+                    ibo.bind();
 
-                    if ( (_face_indices_count != null) && (_face_indices_offset != null) )
-                        Gl.glMultiDrawElements((int)primitives_type, _face_indices_count, (int)ibo.bufferDataType, _face_indices_offset, _face_indices_count.Length);
-                    else
-                        Gl.glDrawElements((int)primitives_type, ibo.dataLength, (int)ibo.bufferDataType, IntPtr.Zero);
+                        if ((_face_indices_count != null) && (_face_indices_offset != null))
+                            Gl.glMultiDrawElements((int)primitives_type, _face_indices_count, (int)ibo.bufferDataType, _face_indices_offset, _face_indices_count.Length);
+                        else
+                            Gl.glDrawElements((int)primitives_type, ibo.dataLength, (int)ibo.bufferDataType, IntPtr.Zero);
 
-                ibo.unbind();
+                    ibo.unbind();
+                }
+                else
+                    // default draw for case when no info is given about indices nor faces
+                    Gl.glDrawArrays((int)primitives_type, 0, _vbo_list[0].dataLength);
 
                 foreach (var vbo in _vbo_list)
                     disable(vbo.attribute_index);

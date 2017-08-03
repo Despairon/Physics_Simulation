@@ -260,15 +260,27 @@ namespace Physics_Simulation
             //    for (uint i = 0; i < userConfiguration.physicsIterations; i++)
             //        (obj as PhysicalObject).calculate_physics();
 
+            int proj_uni = default_shader.getUniform("projection");
+            int view_uni = default_shader.getUniform("view");
+
             foreach (var obj in objects)
             {
                 obj.applyShader(default_shader);
 
+                obj.prepare();
+
+                obj.applyTransformations();
+
+                Gl.glUniformMatrix4fv(proj_uni, 1, 0, getProjectionMatrix());
+                Gl.glUniformMatrix4fv(view_uni, 1, 0, getModelViewMatrix());
+
                 obj.draw();
+                
+                obj.complete();
             }
             
             Gl.glFlush();
-
+            
             graphics.Invalidate();
         }
 
