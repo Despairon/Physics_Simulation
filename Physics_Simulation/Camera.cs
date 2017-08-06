@@ -11,9 +11,15 @@ namespace Physics_Simulation
     {
         #region private_members
        
-        private Vector3 position;
-        private Vector3 lookAt;
-        private Vector3 up;
+        private Vector3   position;
+        private Vector3   lookAt;
+        private Vector3   up;
+
+        private double x_rotation;
+        private double y_rotation;
+
+        private Matrix4   projection;
+        private Matrix4   view;
 
         private Rectangle cameraWindow;
 
@@ -62,7 +68,6 @@ namespace Physics_Simulation
             {
                 case MouseEventType.ENTER:
                     Cursor.Hide();
-                    Cursor.Clip = cameraWindow;
                     break;
                 case MouseEventType.LEAVE:
                     Cursor.Show();
@@ -70,8 +75,10 @@ namespace Physics_Simulation
                 case MouseEventType.MOVE:
                     mouseReverse(cursorPos, borders);
 
-                    double x_rotation = -(mapCursorCoordsToAngle(cursorPos.Y, borders.Bottom, Math.PI) - (Math.PI/2));
-                    double y_rotation = mapCursorCoordsToAngle(cursorPos.X, borders.Right,  Math.PI * 2);
+                    x_rotation = -(mapCursorCoordsToAngle(cursorPos.Y, borders.Bottom, Math.PI) - (Math.PI/2));
+                    y_rotation =   mapCursorCoordsToAngle(cursorPos.X, borders.Right,  Math.PI * 2);
+
+                    updateView();
 
                     lookAt.x = Math.Cos(x_rotation) * Math.Cos(y_rotation);
                     lookAt.y = Math.Sin(x_rotation);
@@ -141,7 +148,7 @@ namespace Physics_Simulation
 
         private Rectangle screenCameraWindowToLocal()
         {
-            return new Rectangle(Point.Empty, new Size(cameraWindow.Size.Width-1, cameraWindow.Size.Height-1));
+            return new Rectangle(Point.Empty, new Size(Cursor.Clip.Size.Width-1, Cursor.Clip.Size.Height-1));
         }
 
         private void mouseReverse(Point cursorPos, Rectangle borders)
@@ -203,14 +210,25 @@ namespace Physics_Simulation
                 }                
             }
 
+            updateView();
+
             Render.userConfiguration.message = "position: x:" + position.x.ToString() + " y:" + position.y.ToString() + " z:" + position.z.ToString() + "\n";
+        }
+
+        private void updateView()
+        {
+            var translation    = ExtendedMath.translation_matrix(-position.x, -position.y, -position.z);
+            var rotation       = ExtendedMath.rotation_matrix(x_rotation, y_rotation, 0);
+            var originRotation = ExtendedMath.rotation_matrix(0, Math.PI / 2, 0);
+
+            view = rotation * originRotation * translation;
         }
 
         #endregion
 
         #region public_members
 
-        public Camera(Rectangle window)
+        public Camera(Rectangle window, double viewAngle)
         {
             // TODO: need to fix this on window move
             cameraWindow = window;
@@ -221,14 +239,20 @@ namespace Physics_Simulation
             lookAt   = new Vector3(0,0,1);
             up       = new Vector3(0,1,0);
 
+            projection = ExtendedMath.projection_matrix(viewAngle, (double)cameraWindow.Width / (double)cameraWindow.Height, 10000, 0.1);
+
+            Cursor.Clip = cameraWindow;
+
             initMovingTimer();
         }
 
-        public void renderCamera()
+        public void updateViewRatio(Rectangle window, double viewAngle)
         {
-            Glu.gluLookAt(position.x, position.y, position.z,
-                          position.x + lookAt.x, position.y + lookAt.y, position.z + lookAt.z,
-                          up.x, up.y, up.z);
+            cameraWindow = window;
+
+            projection = ExtendedMath.projection_matrix(viewAngle, (double)cameraWindow.Width / (double)cameraWindow.Height, 10000, 0.1);
+
+            Cursor.Clip = cameraWindow; // TODO: fix
         }
 
         public Vector3 getPosition()
@@ -239,6 +263,16 @@ namespace Physics_Simulation
         public Vector3 getDirection()
         {
             return new Vector3(position.x + lookAt.x, position.y + lookAt.y, position.z + lookAt.z);
+        }
+
+        public Matrix4 getView()
+        {
+            return view;
+        }
+
+        public Matrix4 getProjection()
+        {
+            return projection;
         }
 
         #endregion

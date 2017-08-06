@@ -393,14 +393,14 @@ namespace Physics_Simulation
             return new Matrix4(scaling);
         }
 
-        public static Matrix4 projection_matrix(double left, double right, double top, double bottom, double far, double near)
+        public static Matrix4 projection_matrix(double fieldOfView, double aspectRatio, double far, double near)
         {
             var projection_matrix = new double[4, 4]
             {
-                { (2*near)/(right - left),  0,                        (right+left)/(right-left),    0                        },
-                { 0,                       (2*near)/(top - bottom),   (top+bottom)/(top-bottom),    0                        },
-                { 0,                        0,                      -((far+near)/(far-near)),     -((2*far*near)/(far-near)) },
-                { 0,                        0,                        -1,                           0                        },
+                { (1/Math.Tan(fieldOfView/2))/aspectRatio,  0,                             0,                           0                       },
+                { 0,                                        1/Math.Tan(fieldOfView/2),     0,                           0                       },
+                { 0,                                        0,                           -((far + near)/(far-near)), -((2*far*near)/(far-near)) },
+                { 0,                                        0,                            -1,                           0                       },
             };
 
             return new Matrix4(projection_matrix);

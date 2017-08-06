@@ -21,6 +21,7 @@ namespace Physics_Simulation
 
             var obj = RenderObject.getPreloadedObject("Objects\\teapot.obj");
             obj.scale(0.03,0.03,0.03);
+            obj.translate(0,1,0);
             Render.instantiateObject(obj);
         }
     }
