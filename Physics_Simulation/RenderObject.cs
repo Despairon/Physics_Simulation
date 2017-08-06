@@ -146,19 +146,19 @@ namespace Physics_Simulation
         public void prepare()
         {
             _shader.use();
-
-            Gl.glPushMatrix();
         }
 
         public void applyTransformations()
         {
-            Gl.glTranslated(_transform.translation.x, _transform.translation.y, _transform.translation.z);
+            int transform_uni = _shader.getUniform("transform");
 
-            Gl.glRotated(_transform.rotation.ox, 1, 0, 0);
-            Gl.glRotated(_transform.rotation.oy, 0, 1, 0);
-            Gl.glRotated(_transform.rotation.oz, 0, 0, 1);
+            var translate = ExtendedMath.translation_matrix(_transform.translation.x, _transform.translation.y, _transform.translation.z);
+            var rotate    = ExtendedMath.rotation_matrix   (_transform.rotation.ox,   _transform.rotation.oy,   _transform.rotation.oz);
+            var scale     = ExtendedMath.scale_matrix      (_transform.scale.x,       _transform.scale.y,       _transform.scale.z);
 
-            Gl.glScaled(_transform.scale.x, _transform.scale.y, _transform.scale.z);
+            var transform = (translate * rotate * scale).toFloat();
+
+            Gl.glUniformMatrix4fv(transform_uni, 1, 1, transform);
         }
 
         public void draw()
@@ -170,8 +170,6 @@ namespace Physics_Simulation
 
         public void complete()
         {
-            Gl.glPopMatrix();
-
             _shader.unuse();
         }
 
