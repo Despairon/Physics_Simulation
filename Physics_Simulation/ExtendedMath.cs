@@ -226,6 +226,19 @@ namespace Physics_Simulation
             }
         }
 
+        public float[] toFloat()
+        {
+            float[] float_matrix = new float[4 * 4]
+            {
+                (float)this[0,0],(float)this[0,1],(float)this[0,2],(float)this[0,3],
+                (float)this[1,0],(float)this[1,1],(float)this[1,2],(float)this[1,3],
+                (float)this[2,0],(float)this[2,1],(float)this[2,2],(float)this[2,3],
+                (float)this[3,0],(float)this[3,1],(float)this[3,2],(float)this[3,3],
+            };
+            
+            return float_matrix;
+        }
+
         public static Matrix4 operator *(Matrix4 left, Matrix4 right)
         {
             double[,] result = new double[4, 4];
@@ -378,6 +391,19 @@ namespace Physics_Simulation
             };
 
             return new Matrix4(scaling);
+        }
+
+        public static Matrix4 projection_matrix(double left, double right, double top, double bottom, double far, double near)
+        {
+            var projection_matrix = new double[4, 4]
+            {
+                { (2*near)/(right - left),  0,                        (right+left)/(right-left),    0                        },
+                { 0,                       (2*near)/(top - bottom),   (top+bottom)/(top-bottom),    0                        },
+                { 0,                        0,                      -((far+near)/(far-near)),     -((2*far*near)/(far-near)) },
+                { 0,                        0,                        -1,                           0                        },
+            };
+
+            return new Matrix4(projection_matrix);
         }
     }
 }
