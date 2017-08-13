@@ -3,6 +3,7 @@
 in vec3 vertex;
 in vec2 texcoord;
 in vec3 normal;
+in vec3 toLightVector;
 
 out vec4 color;
 
@@ -13,9 +14,9 @@ void main()
 {  
 	vec3 unitNormal = normalize(normal);
 	
-	vec3 lightToFace = normalize(default_light_position - vertex);
+	vec3 unitLightVector = normalize(toLightVector);
 	
-	float brightness = dot(lightToFace, unitNormal);
+	float brightness = max(dot(unitNormal, unitLightVector), 0.0);
 	
     color = vec4(brightness * default_color, 1.0f);
 }

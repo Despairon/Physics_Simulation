@@ -19,9 +19,7 @@ namespace Physics_Simulation
             if (!Render.init(ref renderWindow))
                 MessageBox.Show("already initialized or error occured");
 
-            var obj = RenderObject.getPreloadedObject("Objects\\teapot.obj");
-            obj.scale(0.03,0.03,0.03);
-            obj.translate(0,1,0);
+            var obj = RenderObject.getPreloadedObject("Objects\\NewTieFighter.obj");
             Render.instantiateObject(obj);
         }
     }

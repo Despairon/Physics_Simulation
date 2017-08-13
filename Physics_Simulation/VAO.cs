@@ -121,7 +121,8 @@ namespace Physics_Simulation
             bind();
 
                 foreach (var vbo in _vbo_list)
-                    enable(vbo.attribute_index);
+                    if (vbo.type != VBO.BufferType.ELEMENT_ARRAY_BUFFER)
+                        enable(vbo.attribute_index);
             
                 var ibo = _vbo_list.Find(buffer => buffer.type == VBO.BufferType.ELEMENT_ARRAY_BUFFER);
 
@@ -141,7 +142,8 @@ namespace Physics_Simulation
                     Gl.glDrawArrays((int)primitives_type, 0, _vbo_list[0].dataLength);
 
                 foreach (var vbo in _vbo_list)
-                    disable(vbo.attribute_index);
+                    if (vbo.type != VBO.BufferType.ELEMENT_ARRAY_BUFFER)
+                        disable(vbo.attribute_index);
 
             unbind();
         }

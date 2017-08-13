@@ -163,8 +163,6 @@ namespace Physics_Simulation
 
         public void draw()
         {
-            // TODO: apply textures in future!
-
             _vao.draw(primitives_type);
         }
 
@@ -239,8 +237,6 @@ namespace Physics_Simulation
 
                 vao.bind();
 
-                int vbo_index = 0;
-
                 if ((objFile.vertices != null) && (objFile.vertices.Count != 0))
                 {
                     List<float> vertices_data = new List<float>();
@@ -248,10 +244,8 @@ namespace Physics_Simulation
                     foreach (var vertex in objFile.vertices)
                         vertices_data.AddRange(vertex.toFloat());
 
-                    vao.add_VBO(vbo_index, VBO.BufferType.ARRAY_BUFFER, VBO.BufferDataType.FLOAT, vertices_data.ToArray(), vertices_data.Count, VBO.BufferElementsPerVertex.THREE_ELEMENTS);
-                    vao.dataPointer(vbo_index, 0, IntPtr.Zero);
-                
-                    vbo_index++;
+                    vao.add_VBO(0, VBO.BufferType.ARRAY_BUFFER, VBO.BufferDataType.FLOAT, vertices_data.ToArray(), vertices_data.Count, VBO.BufferElementsPerVertex.THREE_ELEMENTS);
+                    vao.dataPointer(0, 0, IntPtr.Zero);
                 }
 
                 if ((texcoords != null) && (texcoords.Count != 0))
@@ -261,10 +255,8 @@ namespace Physics_Simulation
                     foreach (var texcoord in texcoords)
                         texcoord_data.AddRange(texcoord.toFloat());
 
-                    vao.add_VBO(vbo_index, VBO.BufferType.ARRAY_BUFFER, VBO.BufferDataType.FLOAT, texcoord_data.ToArray(), texcoord_data.Count, VBO.BufferElementsPerVertex.TWO_ELEMENTS);
-                    vao.dataPointer(vbo_index, 0, IntPtr.Zero);
-
-                    vbo_index++;
+                    vao.add_VBO(1, VBO.BufferType.ARRAY_BUFFER, VBO.BufferDataType.FLOAT, texcoord_data.ToArray(), texcoord_data.Count, VBO.BufferElementsPerVertex.TWO_ELEMENTS);
+                    vao.dataPointer(1, 0, IntPtr.Zero);
                 }
 
                 if ((normals != null) && (normals.Count != 0))
@@ -274,10 +266,8 @@ namespace Physics_Simulation
                     foreach (var normal in normals)
                         normal_data.AddRange(normal.toFloat());
 
-                    vao.add_VBO(vbo_index, VBO.BufferType.ARRAY_BUFFER, VBO.BufferDataType.FLOAT, normal_data.ToArray(), normal_data.Count, VBO.BufferElementsPerVertex.THREE_ELEMENTS);
-                    vao.dataPointer(vbo_index, 0, IntPtr.Zero);
-
-                    vbo_index++;
+                    vao.add_VBO(2, VBO.BufferType.ARRAY_BUFFER, VBO.BufferDataType.FLOAT, normal_data.ToArray(), normal_data.Count, VBO.BufferElementsPerVertex.THREE_ELEMENTS);
+                    vao.dataPointer(2, 0, IntPtr.Zero);
                 }
 
                 vao.unbind();
