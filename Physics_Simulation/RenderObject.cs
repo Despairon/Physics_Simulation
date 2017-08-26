@@ -61,7 +61,6 @@ namespace Physics_Simulation
     {
         #region private_members
 
-        List<int[]>                         _faces;
         private VAO                         _vao;
         private Transform                   _transform;
         private string                      _name;
@@ -98,11 +97,9 @@ namespace Physics_Simulation
             private set { _primitives_type = value; }
         }
 
-        public RenderObject(string name, VAO attributeList, List<int[]> faces, Primitives_type primitives_type)
+        public RenderObject(string name, VAO attributeList, Primitives_type primitives_type)
         {
             this.name = name;
-
-            _faces = faces;
 
             _vao = attributeList;
 
@@ -111,30 +108,11 @@ namespace Physics_Simulation
             _transform = new Transform(0);
 
             _shader = ShaderManager.getShader("Default");
-
-            if (_vao != null)
-            {
-                _vao.bind();
-
-                if (_faces != null)
-                {
-                    List<int> indices = new List<int>();
-
-                    foreach (var face in faces)
-                        indices.AddRange(face);
-
-                    _vao.add_VBO(3, VBO.BufferType.ELEMENT_ARRAY_BUFFER, VBO.BufferDataType.UINT, indices.ToArray(), indices.ToArray().Length, VBO.BufferElementsPerVertex.ONE_ELEMENT);
-
-                    _vao.prepareIndicesFaces(faces);
-                }
-
-                _vao.unbind();
-            }
         }
 
         public RenderObject getClone()
         {
-            return new RenderObject(_name, _vao, _faces, _primitives_type);
+            return new RenderObject(_name, _vao, _primitives_type);
         }
 
         public void applyShader(ShaderManager.ShaderProgram shader)
@@ -199,10 +177,14 @@ namespace Physics_Simulation
             {
                 string name = objFile.name;
 
-                List<Vector3> vertices  = new List<Vector3>();
-                List<Vector2> texcoords = new List<Vector2>();
-                List<Vector3> normals   = new List<Vector3>();
-                List<int[]>   faces     = new List<int[]>();
+                var vao = new VAO();
+
+                List<float> vertices  = new List<float>();
+                List<float> texcoords = new List<float>();
+                List<float> normals   = new List<float>();
+                List<int>   indices   = new List<int>();
+
+                int primitive_restart_index = int.MaxValue;
 
                 Primitives_type type;
 
@@ -211,70 +193,69 @@ namespace Physics_Simulation
                 else
                     type = Primitives_type.TRIANGLES;
 
+                // fill vertices list
+                if ((objFile.vertices != null) && (objFile.vertices.Count != 0))
+                    foreach (var vertex in objFile.vertices)
+                        vertices.AddRange(vertex.toFloat());
+
                 foreach (var mesh in objFile.meshes)
                     foreach (var face in mesh.faces)
                     {
-                        List<int> f = new List<int>();
-                        foreach (var vertex_index in face.vertex_indices)
-                            f.Add(vertex_index - 1);
-                        faces.Add(f.ToArray());
-
-                        foreach (var texcoord_index in face.texcoord_indices)
+                        // fill texcoords list
+                        if ( (objFile.texcoords != null) && (objFile.texcoords.Count != 0) )
                         {
-                            var texcoord = objFile.texcoords[texcoord_index - 1];
-                            texcoords.Add(texcoord);
+                            foreach (var index in face.texcoord_indices)
+                                texcoords.AddRange(objFile.texcoords[index - 1].toFloat());
                         }
 
-                        foreach (var normal_index in face.normal_indices)
+                        // fill normals list
+                        if ( (objFile.normals != null) && (objFile.normals.Count != 0) )
                         {
-                            var normal = objFile.normals[normal_index - 1];
-                            normals.Add(normal);
+                            foreach (var index in face.normal_indices)
+                                normals.AddRange(objFile.normals[index - 1].toFloat());
                         }
+
+                        var decremented_indices = new List<int>();
+                        foreach (var index in face.vertex_indices)
+                            decremented_indices.Add(index -1);
+
+                        // fill indices list
+                        indices.AddRange(decremented_indices.ToArray());
+                        indices.Add(primitive_restart_index);
                     }
-
-                // TODO: try to find a different approach...
-                VAO vao = new VAO();
 
                 vao.bind();
 
-                if ((objFile.vertices != null) && (objFile.vertices.Count != 0))
-                {
-                    List<float> vertices_data = new List<float>();
+                    vao.setPrimitiveRestartIndex(primitive_restart_index);
 
-                    foreach (var vertex in objFile.vertices)
-                        vertices_data.AddRange(vertex.toFloat());
+                    // load vertices attribute array
+                    if ( (vertices != null) && (vertices.Count != 0) )
+                    {
+                        vao.add_VBO(0, VBO.BufferType.ARRAY_BUFFER, VBO.BufferDataType.FLOAT, vertices.ToArray(), vertices.Count, VBO.BufferElementsPerVertex.THREE_ELEMENTS);
+                        vao.dataPointer(0, 0, IntPtr.Zero);
+                    }
 
-                    vao.add_VBO(0, VBO.BufferType.ARRAY_BUFFER, VBO.BufferDataType.FLOAT, vertices_data.ToArray(), vertices_data.Count, VBO.BufferElementsPerVertex.THREE_ELEMENTS);
-                    vao.dataPointer(0, 0, IntPtr.Zero);
-                }
+                    // load texcoords attribute array
+                    if ( (texcoords != null) && (texcoords.Count != 0) )
+                    {
+                        vao.add_VBO(1, VBO.BufferType.ARRAY_BUFFER, VBO.BufferDataType.FLOAT, texcoords.ToArray(), texcoords.Count, VBO.BufferElementsPerVertex.TWO_ELEMENTS);
+                        vao.dataPointer(1, 0, IntPtr.Zero);
+                    }   
 
-                if ((texcoords != null) && (texcoords.Count != 0))
-                {
-                    List<float> texcoord_data = new List<float>();
+                    // load normals attribute array
+                    if ( (normals != null) && (normals.Count != 0) )
+                    {
+                        vao.add_VBO(2, VBO.BufferType.ARRAY_BUFFER, VBO.BufferDataType.FLOAT, normals.ToArray(), normals.Count, VBO.BufferElementsPerVertex.THREE_ELEMENTS);
+                        vao.dataPointer(2, 0, IntPtr.Zero);
+                    }
 
-                    foreach (var texcoord in texcoords)
-                        texcoord_data.AddRange(texcoord.toFloat());
-
-                    vao.add_VBO(1, VBO.BufferType.ARRAY_BUFFER, VBO.BufferDataType.FLOAT, texcoord_data.ToArray(), texcoord_data.Count, VBO.BufferElementsPerVertex.TWO_ELEMENTS);
-                    vao.dataPointer(1, 0, IntPtr.Zero);
-                }
-
-                if ((normals != null) && (normals.Count != 0))
-                {
-                    List<float> normal_data = new List<float>();
-
-                    foreach (var normal in normals)
-                        normal_data.AddRange(normal.toFloat());
-
-                    vao.add_VBO(2, VBO.BufferType.ARRAY_BUFFER, VBO.BufferDataType.FLOAT, normal_data.ToArray(), normal_data.Count, VBO.BufferElementsPerVertex.THREE_ELEMENTS);
-                    vao.dataPointer(2, 0, IntPtr.Zero);
-                }
+                    // load indices element buffer
+                    if ( (indices != null) && (indices.Count != 0) )
+                        vao.add_VBO(3, VBO.BufferType.ELEMENT_ARRAY_BUFFER, VBO.BufferDataType.UINT, indices.ToArray(), indices.Count, VBO.BufferElementsPerVertex.ONE_ELEMENT);
 
                 vao.unbind();
 
-                var obj = new RenderObject(name, vao, faces, type);
-
-                return obj;
+                return new RenderObject(name, vao, type);
             }           
         }
 

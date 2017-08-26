@@ -3,18 +3,17 @@
 in vec3 vertex;
 in vec2 texcoord;
 in vec3 normal;
-in vec3 toLightVector;
 
 out vec4 color;
 
-const vec3 default_color          = vec3(1,1,1);
+const vec3 default_color          = vec3(1.0f,1.0f,0.8f);
 const vec3 default_light_position = vec3(0,0,0);
 
 void main()
 {  
 	vec3 unitNormal = normalize(normal);
 	
-	vec3 unitLightVector = normalize(toLightVector);
+	vec3 unitLightVector = normalize(vec3(0,1,0) - vertex);
 	
 	float brightness = max(dot(unitNormal, unitLightVector), 0.0);
 	

@@ -20,6 +20,7 @@ namespace Physics_Simulation
                 MessageBox.Show("already initialized or error occured");
 
             var obj = RenderObject.getPreloadedObject("Objects\\NewTieFighter.obj");
+            //obj.scale(0.01, 0.01, 0.01);
             Render.instantiateObject(obj);
         }
     }

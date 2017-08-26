@@ -87,7 +87,7 @@ namespace Physics_Simulation
 
                     break;
                 case MouseEventType.CLICK:
-                    Render.test(position.x + lookAt.x, position.y + lookAt.y, position.z + lookAt.z, 0,0,0, 0.01,0.01,0.01); // TODO: 4 fun, delete
+                    Render.test(position.x + lookAt.x, position.y + lookAt.y, position.z + lookAt.z, 0,0,0, 0.01,0.01,0.01); // TODO: 4 test, delete
                     break;
                 default : break;
             }          

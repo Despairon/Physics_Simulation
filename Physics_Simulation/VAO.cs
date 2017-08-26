@@ -13,8 +13,7 @@ namespace Physics_Simulation
 
         private int       _id;
         private List<VBO> _vbo_list;
-        private int[]     _face_indices_count = null;
-        private IntPtr[]  _face_indices_offset = null;
+        private int       _primitive_restart_index = -1;
 
         #endregion
 
@@ -88,32 +87,9 @@ namespace Physics_Simulation
             }
         }
 
-        public void prepareIndicesFaces(List<int[]> faces_indices)
+        public void setPrimitiveRestartIndex(int index)
         {
-            _face_indices_count  = new int[faces_indices.Count];
-            _face_indices_offset = new IntPtr[faces_indices.Count];
-
-            int currentOffset = 0;
-
-            int index_type_sz = 0;
-
-            var ibo = _vbo_list.Find(buffer => buffer.type == VBO.BufferType.ELEMENT_ARRAY_BUFFER);
-
-            switch (ibo.bufferDataType)
-            {
-                case VBO.BufferDataType.UBYTE:  index_type_sz = sizeof(byte);   break;
-                case VBO.BufferDataType.UINT:   index_type_sz = sizeof(uint);   break;
-                case VBO.BufferDataType.USHORT: index_type_sz = sizeof(ushort); break;
-
-                default: break;
-            }
-
-            for (int i = 0; i < faces_indices.Count; i++)
-            {
-                _face_indices_count[i] = faces_indices[i].Length;
-                _face_indices_offset[i] = new IntPtr(currentOffset);
-                currentOffset += index_type_sz * _face_indices_count[i];
-            }
+            _primitive_restart_index = index;
         }
 
         public void draw(RenderObject.Primitives_type primitives_type)
@@ -130,10 +106,13 @@ namespace Physics_Simulation
                 {
                     ibo.bind();
 
-                        if ((_face_indices_count != null) && (_face_indices_offset != null))
-                            Gl.glMultiDrawElements((int)primitives_type, _face_indices_count, (int)ibo.bufferDataType, _face_indices_offset, _face_indices_count.Length);
-                        else
-                            Gl.glDrawElements((int)primitives_type, ibo.dataLength, (int)ibo.bufferDataType, IntPtr.Zero);
+                        Gl.glEnableClientState(Gl.GL_PRIMITIVE_RESTART_NV);
+
+                        Gl.glPrimitiveRestartIndexNV(_primitive_restart_index);
+
+                        Gl.glDrawElements((int)primitives_type, ibo.dataLength, (int)ibo.bufferDataType, IntPtr.Zero);
+
+                        Gl.glDisableClientState(Gl.GL_PRIMITIVE_RESTART_NV);
 
                     ibo.unbind();
                 }
